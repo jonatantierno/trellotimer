@@ -1,14 +1,17 @@
 package com.jonatantierno.trellotimer;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.jonatantierno.trellotimer.services.GetAllBoardsSrv;
-import com.jonatantierno.trellotimer.services.GetBoardSrv;
 
+import java.io.IOException;
 import java.util.List;
 
 import retrofit.Callback;
@@ -18,10 +21,9 @@ import retrofit.client.Response;
 
 
 public class MainActivity extends ActionBarActivity {
-    public static final String CLIENT_ID = "2cb6e34fcc644d0cc36f7b4751ed3a90";
-    public static final String CLIENT_SECRET = "10436d346b0d223043dbca4baac8dd7a88bcbfd51194999ba80fd5d348c13f84";
+    public static final String BASE_TRELLO_URL = "https://api.trello.com";
 
-    public static final String SAMPLE_BOARD_ID = "552c101e1158f2cb2ca1ab90";
+    CredentialFactory credentialFactory = new CredentialFactory();
 
     TextView textView;
     @Override
@@ -30,25 +32,57 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         textView = (TextView)findViewById(R.id.messageTextView);
-        RestAdapter boardRestAdapter = new RestAdapter.Builder().setEndpoint("https://api.trello.com").build();
-        GetBoardSrv boardsSrv = boardRestAdapter.create(GetBoardSrv.class);
+        Button b = (Button)findViewById(R.id.button);
 
-        boardsSrv.getBoard(CLIENT_ID, SAMPLE_BOARD_ID, new Callback<Board>(){
+        credentialFactory.build(this);
 
-            @Override
-            public void success(Board boards, Response response) {
-                textView.setText("Boards Name is "+ boards.name);
-            }
+        b.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void failure(RetrofitError error) {
-                   textView.setText(error.toString());
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            getBoards(credentialFactory.getCredential(),new Callback<List<Board>>() {
+                                @Override
+                                public void success(final List<com.jonatantierno.trellotimer.Board> boards, Response response) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            textView.setText(boards.size() + " boards found. First One is: " + boards.get(0).name);
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void failure(final RetrofitError error) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            textView.setText(error.toString());
+                                        }
+                                    });
+                                }
+                            });
+                        } catch (IOException e) {
+                            textView.setText(e.toString());
+                        }
+                    }
+                }).start();
+
             }
         });
 
-
     }
 
+
+    private void getBoards(Credential credential, Callback<List<Board>> callback){
+        RestAdapter boardRestAdapter = new RestAdapter.Builder().setEndpoint(BASE_TRELLO_URL).build();
+        GetAllBoardsSrv getAllBoardsSrv = boardRestAdapter.create(GetAllBoardsSrv.class);
+
+        getAllBoardsSrv.listBoards(CredentialFactory.CLIENT_ID, credential.getAccessToken(), callback);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
