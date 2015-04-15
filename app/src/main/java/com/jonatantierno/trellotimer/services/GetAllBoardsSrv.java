@@ -13,5 +13,5 @@ import retrofit.http.Query;
  */
 public interface GetAllBoardsSrv {
     @GET("/1/members/me/boards?fields=name")
-    void listBoards(@Query("key")String appKey, @Query("token") String oauthToken, Callback<List<Board>> callback);
+    void listBoards(@Query("key") String appKey, @Query("token") String oauthToken, Callback<List<Board>> callback);
 }

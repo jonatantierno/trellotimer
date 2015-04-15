@@ -1,7 +1,5 @@
 package com.jonatantierno.trellotimer;
 
-import android.app.Activity;
-import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 
 import com.google.api.client.auth.oauth2.BearerToken;
@@ -9,8 +7,6 @@ import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson.JacksonFactory;
 import com.wuman.android.auth.AuthorizationFlow;
 import com.wuman.android.auth.AuthorizationUIController;
@@ -28,9 +24,6 @@ public class CredentialFactory {
     public static final String CLIENT_SECRET = "10436d346b0d223043dbca4baac8dd7a88bcbfd51194999ba80fd5d348c13f84";
     public static final String OAUTH_USER_ID = "trello";
 
-    public static final JsonFactory JSON_FACTORY = new JacksonFactory();
-    public static final HttpTransport HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
-
     public static final String OAUTH_STORE_NAME = "oauth_store";
     public static final String ACCESS_TOKEN_URL = "https://trello.com/1/OAuthGetAccessToken";
     public static final String AUTHORIZE_TOKEN_URL = "https://trello.com/1/OAuthAuthorizeToken";
@@ -42,12 +35,12 @@ public class CredentialFactory {
         // setup credential store
         SharedPreferencesCredentialStore credentialStore =
                 new SharedPreferencesCredentialStore(context,
-                        OAUTH_STORE_NAME, JSON_FACTORY);
+                        OAUTH_STORE_NAME, new JacksonFactory());
         // setup authorization flow
         AuthorizationFlow.Builder flowBuilder = new AuthorizationFlow.Builder(
                 BearerToken.authorizationHeaderAccessMethod(),
-                HTTP_TRANSPORT,
-                JSON_FACTORY,
+                AndroidHttp.newCompatibleTransport(),
+                new JacksonFactory(),
                 new GenericUrl(ACCESS_TOKEN_URL),
                 new ClientParametersAuthentication(CLIENT_ID,CLIENT_SECRET),
                 CLIENT_ID,

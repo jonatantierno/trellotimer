@@ -31,7 +31,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = (TextView)findViewById(R.id.messageTextView);
+        textView = (TextView)findViewById(R.id.textview);
         Button b = (Button)findViewById(R.id.button);
 
         credentialFactory.build(this);
@@ -46,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
                         try {
                             getBoards(credentialFactory.getCredential(),new Callback<List<Board>>() {
                                 @Override
-                                public void success(final List<com.jonatantierno.trellotimer.Board> boards, Response response) {
+                                public void success(final List<Board> boards, Response response) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
