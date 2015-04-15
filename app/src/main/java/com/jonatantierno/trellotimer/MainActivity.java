@@ -1,5 +1,6 @@
 package com.jonatantierno.trellotimer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -19,69 +20,71 @@ import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-
 public class MainActivity extends ActionBarActivity {
     public static final String BASE_TRELLO_URL = "https://api.trello.com";
 
-    CredentialFactory credentialFactory = new CredentialFactory();
+    CredentialFactory credentialFactory;
+    StatusStore store;
+    TTConnections connections;
 
     TextView textView;
+    Button button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        credentialFactory = ((TTApplication) getApplication()).credentialFactory;
+        store = ((TTApplication) getApplication()).store;
+        connections = ((TTApplication) getApplication()).connections;
+
         setContentView(R.layout.activity_main);
 
         textView = (TextView)findViewById(R.id.textview);
-        Button b = (Button)findViewById(R.id.button);
+        button = (Button)findViewById(R.id.button);
 
-        credentialFactory.build(this);
+        credentialFactory.init(this);
+        store.init(this);
 
-        b.setOnClickListener(new View.OnClickListener() {
+        if (store.userLoggedIn()){
+            goToConfig();
+        }
+
+        button.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            getBoards(credentialFactory.getCredential(),new Callback<List<Board>>() {
-                                @Override
-                                public void success(final List<Board> boards, Response response) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            textView.setText(boards.size() + " boards found. First One is: " + boards.get(0).name);
-                                        }
-                                    });
-                                }
+                        connections.getBoards(credentialFactory, new TTCallback<List<Board>>() {
+                            @Override
+                            public void success(final List<Board> boards) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        textView.setText(boards.size() + " boards found. First One is: " + boards.get(0).name);
+                                    }
+                                });
+                                onLogInSuccess();
+                            }
 
-                                @Override
-                                public void failure(final RetrofitError error) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            textView.setText(error.toString());
-                                        }
-                                    });
-                                }
-                            });
-                        } catch (IOException e) {
-                            textView.setText(e.toString());
-                        }
+                            @Override
+                            public void failure(final Throwable error) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        textView.setText(error.toString());
+                                    }
+                                });
+                            }
+                        });
                     }
                 }).start();
 
             }
         });
 
-    }
-
-
-    private void getBoards(Credential credential, Callback<List<Board>> callback){
-        RestAdapter boardRestAdapter = new RestAdapter.Builder().setEndpoint(BASE_TRELLO_URL).build();
-        GetAllBoardsSrv getAllBoardsSrv = boardRestAdapter.create(GetAllBoardsSrv.class);
-
-        getAllBoardsSrv.listBoards(CredentialFactory.CLIENT_ID, credential.getAccessToken(), callback);
     }
 
     @Override
@@ -104,5 +107,15 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    void onLogInSuccess() {
+        store.checkLoggedIn();
+        goToConfig();
+    }
+
+    private void goToConfig() {
+        startActivity(new Intent(this, ConfigActivity.class));
+        finish();
     }
 }

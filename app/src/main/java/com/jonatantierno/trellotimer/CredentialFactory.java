@@ -16,6 +16,7 @@ import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
 
 import java.io.IOException;
 
+
 /**
  * Created by jonatan on 14/04/15.
  */
@@ -31,7 +32,7 @@ public class CredentialFactory {
 
     private OAuthManager oAuthManager;
 
-    public void build(ActionBarActivity context) {
+    public void init(ActionBarActivity context) {
         // setup credential store
         SharedPreferencesCredentialStore credentialStore =
                 new SharedPreferencesCredentialStore(context,
