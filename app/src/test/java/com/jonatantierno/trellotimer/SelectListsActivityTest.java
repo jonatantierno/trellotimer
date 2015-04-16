@@ -51,10 +51,15 @@ public class SelectListsActivityTest {
     }
 
     @Test
-    public void shouldCallLists(){
+    public void shouldCallListsAndSelectTodo(){
         activityController.create();
 
         verify(connections).getLists(credentialFactory, activity);
+
+        assertEquals(activity.getResources().getColor(R.color.text_current), activity.todoTextView.getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.doingTextView.getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.doneTextView.getCurrentTextColor());
+
     }
 
 
@@ -62,13 +67,17 @@ public class SelectListsActivityTest {
     public void whenListsSelectedShouldStoreIt(){
         activityController.create();
 
-        activity.success(Collections.singletonList(new Item("board_id", "board_name")));
+        Item item = new Item("list_id", "list_name");
+        activity.success(Collections.singletonList(item));
 
         assertEquals(View.GONE, activity.progressBar.getVisibility());
 
         activity.onItemSelected(0);
 
-        //verify(store).saveList(asdfadsf);
+        verify(store).saveTodoList(item);
+        assertEquals(activity.getResources().getColor(R.color.text_correct), activity.todoTextView.getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_current), activity.doingTextView.getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.doneTextView.getCurrentTextColor());
 
         checkAdvanceToConfig(activity);
     }

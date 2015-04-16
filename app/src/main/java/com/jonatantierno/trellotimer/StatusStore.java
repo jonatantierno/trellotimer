@@ -40,4 +40,8 @@ public class StatusStore {
     public String getBoardId() {
         return prefs.getString(BOARD_ID,null);
     }
+
+    public void saveTodoList(Item list) {
+
+    }
 }

@@ -28,7 +28,6 @@ public abstract class ConfigActivity<T extends Item> extends ActionBarActivity i
     TTAdapter mAdapter;
     protected final List<T> list;
 
-
     ConfigActivity(int layoutId){
         this.layoutId = layoutId;
         list = new ArrayList<T>();
