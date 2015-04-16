@@ -1,9 +1,8 @@
 package com.jonatantierno.trellotimer;
 
-import android.util.Log;
-
 import com.google.api.client.auth.oauth2.Credential;
 import com.jonatantierno.trellotimer.services.GetAllBoardsSrv;
+import com.jonatantierno.trellotimer.services.GetAllListsSrv;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,24 +19,23 @@ import retrofit.client.Response;
 public class TTConnections {
     public static final String BASE_TRELLO_URL = "https://api.trello.com";
 
-    public void getBoards(final CredentialFactory credentialFactory, final TTCallback<List<Board>> callback){
+    public final StatusStore store;
+    public TTConnections(StatusStore statusStore) {
+        store = statusStore;
+    }
+
+    public void getBoards(final CredentialFactory credentialFactory, final TTCallback<List<Item>> callback){
         new Thread(new Runnable(){
             @Override
             public void run() {
-                Credential credential = null;
-                try {
-                    credential = credentialFactory.getCredential();
-                } catch (IOException e) {
-                    callback.failure(e);
-                }
-                assert credential !=null;
+                Credential credential = getCredential(credentialFactory, callback);
 
-                RestAdapter boardRestAdapter = new RestAdapter.Builder().setEndpoint(BASE_TRELLO_URL).build();
+                RestAdapter boardRestAdapter = buildAdapter();
                 GetAllBoardsSrv getAllBoardsSrv = boardRestAdapter.create(GetAllBoardsSrv.class);
 
-                getAllBoardsSrv.listBoards(CredentialFactory.CLIENT_ID, credential.getAccessToken(), new Callback<List<Board>>() {
+                getAllBoardsSrv.listBoards(CredentialFactory.CLIENT_ID, credential.getAccessToken(), new Callback<List<Item>>() {
                     @Override
-                    public void success(List<Board> list, Response response) {
+                    public void success(List<Item> list, Response response) {
                         callback.success(list);
                     }
 
@@ -48,6 +46,49 @@ public class TTConnections {
                 });
             }
         }).start();
+    }
 
+
+    public void getLists(final CredentialFactory credentialFactory, final TTCallback<List<Item>> callback) {
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                Credential credential = getCredential(credentialFactory, callback);
+
+                RestAdapter boardRestAdapter = buildAdapter();
+                GetAllListsSrv getAllListsSrv = boardRestAdapter.create(GetAllListsSrv.class);
+
+                final String boardId = store.getBoardId();
+
+                assert boardId != null;
+
+                getAllListsSrv.listBoards(CredentialFactory.CLIENT_ID, credential.getAccessToken(), boardId, new Callback<List<Item>>() {
+                    @Override
+                    public void success(List<Item> list, Response response) {
+                        callback.success(list);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        callback.failure(error.getCause());
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private Credential getCredential(CredentialFactory credentialFactory, TTCallback<List<Item>> callback) {
+        Credential credential = null;
+        try {
+            credential = credentialFactory.getCredential();
+        } catch (IOException e) {
+            callback.failure(e);
+        }
+        assert credential !=null;
+        return credential;
+    }
+
+    private RestAdapter buildAdapter() {
+        return new RestAdapter.Builder().setEndpoint(BASE_TRELLO_URL).build();
     }
 }

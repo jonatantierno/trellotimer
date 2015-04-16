@@ -13,14 +13,13 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ActivityController;
 
-import java.io.IOException;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by jonatan on 15/04/15.
@@ -30,27 +29,21 @@ import static org.mockito.Mockito.when;
 public class ConfigActivityTest {
 
     ConfigActivity activity;
-    ActivityController<ConfigActivity> activityController;
-    TTConnections connections = mock(TTConnections.class);
-    CredentialFactory credentialFactory = mock(CredentialFactory.class);
+    ActivityController<SelectBoardActivity> activityController;
 
-    TTApplication application;
     @Before
     public void setup(){
-        activityController = Robolectric.buildActivity(ConfigActivity.class);
+        activityController = Robolectric.buildActivity(SelectBoardActivity.class);
         activity = activityController.get();
-
-        application = (TTApplication) RuntimeEnvironment.application;
-
-        application.credentialFactory= credentialFactory;
-        application.connections = connections;
     }
 
     @Test
-    public void shouldCallBoards(){
+    public void whenFaliureThenShowErrorMessage(){
         activityController.create();
 
-        verify(connections).getBoards(credentialFactory, activity);
-    }
+        activity.failure(new Exception("Exception"));
 
+        assertEquals(activity.getString(R.string.connection_error), activity.messageTextView.getText().toString());
+        assertEquals(View.GONE, activity.progressBar.getVisibility());
+    }
 }

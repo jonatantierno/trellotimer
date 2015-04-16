@@ -20,9 +20,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ConfigActivity"
+            android:name=".SelectBoardActivity"
             android:label="@string/title_activity_config" >
         </activity>
+        <activity
+            android:name=".SelectListsActivity"
+            android:label="@string/title_activity_config" >
+        </activity>
+
     </application>
 
 </manifest>

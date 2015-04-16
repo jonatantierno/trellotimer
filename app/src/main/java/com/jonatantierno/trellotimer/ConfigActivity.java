@@ -1,85 +1,71 @@
 package com.jonatantierno.trellotimer;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewManager;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-
-
-public class ConfigActivity extends ActionBarActivity implements TTCallback<List<Board>> {
+/**
+ * Created by jonatan on 16/04/15.
+ */
+public abstract class ConfigActivity<T extends Item> extends ActionBarActivity implements TTCallback<List<T>>, OnTTItemSelectedListener{
+    public final int layoutId;
 
     CredentialFactory credentialFactory;
     StatusStore store;
     TTConnections connections;
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
-    private BoardAdapter mAdapter;
-    private List<Board> list;
+    ProgressBar progressBar;
+    TextView messageTextView;
+
+    RecyclerView mRecyclerView;
+    LinearLayoutManager mLayoutManager;
+    TTAdapter mAdapter;
+    protected final List<T> list;
+
+
+    ConfigActivity(int layoutId){
+        this.layoutId = layoutId;
+        list = new ArrayList<T>();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_config);
+        setContentView(layoutId);
 
         credentialFactory = ((TTApplication) getApplication()).credentialFactory;
         store = ((TTApplication) getApplication()).store;
         connections = ((TTApplication) getApplication()).connections;
 
+        progressBar = (ProgressBar) findViewById(R.id.boardProgressBar);
+        messageTextView = (TextView) findViewById(R.id.boardTextView);
         mRecyclerView = (RecyclerView) findViewById(R.id.boardList);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // specify an adapter (see also next example)
-        list = new ArrayList<Board>();
-        mAdapter = new BoardAdapter(list);
+        mAdapter = new TTAdapter(list,this);
         mRecyclerView.setAdapter(mAdapter);
-
-        connections.getBoards(credentialFactory, this);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_config, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void success(List<Board> boards) {
-        mAdapter.addItems(boards);
+    public void success(List<T> result) {
+        mAdapter.addItems(result);
         mRecyclerView.requestLayout();
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
     public void failure(Throwable error) {
-
+        messageTextView.setText(R.string.connection_error);
+        progressBar.setVisibility(View.GONE);
     }
 }

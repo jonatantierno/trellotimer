@@ -9,7 +9,7 @@ public class TTApplication extends Application {
 
     CredentialFactory credentialFactory = new CredentialFactory();
     StatusStore store = new StatusStore();
-    TTConnections connections = new TTConnections();
+    TTConnections connections = new TTConnections(store);
 
     @Override
     public void onCreate() {

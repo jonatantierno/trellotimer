@@ -1,8 +1,6 @@
 package com.jonatantierno.trellotimer.services;
 
-import com.jonatantierno.trellotimer.Board;
-
-import java.util.List;
+import com.jonatantierno.trellotimer.Item;
 
 import retrofit.Callback;
 import retrofit.http.GET;
@@ -14,5 +12,5 @@ import retrofit.http.Query;
  */
 public interface GetBoardSrv {
     @GET("/1/boards/{id}")
-    void getBoard(@Query("key") String appKey, @Path("id") String boardId, Callback<Board> callback);
+    void getBoard(@Query("key") String appKey, @Path("id") String boardId, Callback<Item> callback);
 }

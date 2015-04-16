@@ -2,7 +2,6 @@ package com.jonatantierno.trellotimer;
 
 import android.content.Intent;
 import android.view.View;
-import android.widget.TextView;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +61,7 @@ public class MainActivityTest {
         Intent nextActivity = Shadows.shadowOf(activity).getNextStartedActivity();
 
         assertNotNull(nextActivity);
-        assertEquals(ConfigActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
+        assertEquals(SelectBoardActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
         assertTrue(activity.isFinishing());
     }
 
