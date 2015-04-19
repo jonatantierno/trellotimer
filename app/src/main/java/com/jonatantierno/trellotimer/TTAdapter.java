@@ -33,7 +33,7 @@ public class TTAdapter<T extends Item> extends RecyclerView.Adapter<TTAdapter.Vi
 
         @Override
         public void onClick(View v) {
-            this.itemSelectedListener.onItemSelected(getPosition());
+            this.itemSelectedListener.onItemSelected(getPosition(), v);
         }
     }
 

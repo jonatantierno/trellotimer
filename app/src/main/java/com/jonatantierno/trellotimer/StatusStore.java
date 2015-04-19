@@ -14,6 +14,8 @@ public class StatusStore {
     public static final String USER_LOGGED_IN = "USER_LOGGED_IN";
     public static final String BOARD_ID = "BOARD_ID";
     public static final String BOARD_NAME = "BOARD_NAME";
+    public static final String LIST_ID = "LIST_ID_";
+    public static final String LIST_NAME = "LIST_NAME";
 
     SharedPreferences prefs;
     /**
@@ -41,7 +43,8 @@ public class StatusStore {
         return prefs.getString(BOARD_ID,null);
     }
 
-    public void saveTodoList(Item list) {
-
+    public void saveList(ListType type, Item list){
+        prefs.edit().putString(LIST_ID +type.name(), list.id).commit();
+        prefs.edit().putString(LIST_NAME + type.name(), list.name).commit();
     }
 }

@@ -3,4 +3,5 @@
     <color name="text_current">#5555ff</color>
     <color name="text_correct">#111111</color>
     <color name="text_pending">#AAAAAA</color>
+    <color name="background_selectedList">#CCCCCC</color>
 </resources>

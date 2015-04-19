@@ -68,7 +68,7 @@ public class SelectBoardActivityTest {
 
         assertEquals(View.GONE, activity.progressBar.getVisibility());
 
-        activity.onItemSelected(0);
+        activity.onItemSelected(0, mock(View.class));
 
         verify(store).saveBoard(board);
 

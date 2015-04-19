@@ -12,4 +12,9 @@
     <string name="todo">TODO</string>
     <string name="doing">DONE</string>
     <string name="done">DOING</string>
+    <string name="title_activity_tasks">TasksActivityActivity</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
 </resources>

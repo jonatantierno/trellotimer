@@ -13,12 +13,15 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ActivityController;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -30,6 +33,9 @@ public class SelectListsActivityTest {
 
     public static final String BOARD_NAME = "board_name";
     public static final String BOARD_ID = "board_id";
+    public static final String LIST_NAME_TODO = "list_name_todo";
+    public static final String LIST_NAME_DOING = "list_name_doing";
+    public static final String LIST_NAME_DONE = "list_name_done";
     SelectListsActivity activity;
     ActivityController<SelectListsActivity> activityController;
     TTConnections connections = mock(TTConnections.class);
@@ -56,28 +62,68 @@ public class SelectListsActivityTest {
 
         verify(connections).getLists(credentialFactory, activity);
 
-        assertEquals(activity.getResources().getColor(R.color.text_current), activity.todoTextView.getCurrentTextColor());
-        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.doingTextView.getCurrentTextColor());
-        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.doneTextView.getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_current), activity.textViews[ListType.TODO.ordinal()].getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.textViews[ListType.DOING.ordinal()].getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.textViews[ListType.DONE.ordinal()].getCurrentTextColor());
 
     }
 
 
-    //@Test
-    public void whenListsSelectedShouldStoreIt(){
+    @Test
+    public void whenListsSelectedShouldStoreItAndSelectNext(){
         activityController.create();
 
-        Item item = new Item("list_id", "list_name");
-        activity.success(Collections.singletonList(item));
+        Item itemTodo = new Item("list_id_todo", LIST_NAME_TODO);
+        Item itemDoing = new Item("list_id_doing", LIST_NAME_DOING);
+        Item itemDone = new Item("list_id_done", LIST_NAME_DONE);
+
+        List<Item> list = new ArrayList<>();
+        list.add(itemTodo);
+        list.add(itemDoing);
+        list.add(itemDone);
+
+        activity.success(list);
 
         assertEquals(View.GONE, activity.progressBar.getVisibility());
 
-        activity.onItemSelected(0);
+        View selectedItem = mock(View.class);
+        activity.onItemSelected(0,selectedItem);
 
-        verify(store).saveTodoList(item);
-        assertEquals(activity.getResources().getColor(R.color.text_correct), activity.todoTextView.getCurrentTextColor());
-        assertEquals(activity.getResources().getColor(R.color.text_current), activity.doingTextView.getCurrentTextColor());
-        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.doneTextView.getCurrentTextColor());
+        verify(store).saveList(ListType.TODO, itemTodo);
+        assertEquals(activity.getResources().getColor(R.color.text_correct), activity.textViews[ListType.TODO.ordinal()].getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_current), activity.textViews[ListType.DOING.ordinal()].getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.textViews[ListType.DONE.ordinal()].getCurrentTextColor());
+        assertEquals(LIST_NAME_TODO, activity.editTexts[ListType.TODO.ordinal()].getText().toString());
+        verify(selectedItem).setBackgroundColor(R.color.background_selectedList);
+
+        activity.onItemSelected(1, selectedItem);
+
+        verify(store).saveList(ListType.DOING, itemDoing);
+        assertEquals(activity.getResources().getColor(R.color.text_correct), activity.textViews[ListType.TODO.ordinal()].getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_correct), activity.textViews[ListType.DOING.ordinal()].getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_current), activity.textViews[ListType.DONE.ordinal()].getCurrentTextColor());
+        assertEquals(LIST_NAME_DOING, activity.editTexts[ListType.DOING.ordinal()].getText().toString());
+        verify(selectedItem,times(2)).setBackgroundColor(R.color.background_selectedList);
+
+        activity.onItemSelected(2, selectedItem);
+
+        verify(store).saveList(ListType.DONE, itemDone);
+        assertEquals(activity.getResources().getColor(R.color.text_current), activity.textViews[ListType.TODO.ordinal()].getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_correct), activity.textViews[ListType.DOING.ordinal()].getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_correct), activity.textViews[ListType.DONE.ordinal()].getCurrentTextColor());
+        assertEquals(LIST_NAME_DONE, activity.editTexts[ListType.DONE.ordinal()].getText().toString());
+        verify(selectedItem,times(3)).setBackgroundColor(R.color.background_selectedList);
+
+        assertEquals(View.VISIBLE, activity.listFinishButton.getVisibility());
+
+        assertFalse(activity.isFinishing());
+    }
+
+    @Test
+    public void whenPressButtonThenGoToTasksScreen(){
+        activityController.create();
+
+        activity.listFinishButton.performClick();
 
         checkAdvanceToConfig(activity);
     }
@@ -86,7 +132,7 @@ public class SelectListsActivityTest {
         Intent nextActivity = Shadows.shadowOf(activity).getNextStartedActivity();
 
         assertNotNull(nextActivity);
-       // assertEquals(SelectListsActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
-        assertFalse(activity.isFinishing());
+        assertEquals(TasksActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
+        assertTrue(activity.isFinishing());
     }
 }
