@@ -3,6 +3,8 @@ package com.jonatantierno.trellotimer;
 import com.google.api.client.auth.oauth2.Credential;
 import com.jonatantierno.trellotimer.services.GetAllBoardsSrv;
 import com.jonatantierno.trellotimer.services.GetAllListsSrv;
+import com.jonatantierno.trellotimer.services.GetTasksSrv;
+import com.jonatantierno.trellotimer.services.MoveToListSrv;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +35,7 @@ public class TTConnections {
                 RestAdapter boardRestAdapter = buildAdapter();
                 GetAllBoardsSrv getAllBoardsSrv = boardRestAdapter.create(GetAllBoardsSrv.class);
 
-                getAllBoardsSrv.listBoards(CredentialFactory.CLIENT_ID, credential.getAccessToken(), new Callback<List<Item>>() {
+                getAllBoardsSrv.getBoards(CredentialFactory.CLIENT_ID, credential.getAccessToken(), new Callback<List<Item>>() {
                     @Override
                     public void success(List<Item> list, Response response) {
                         callback.success(list);
@@ -62,7 +64,7 @@ public class TTConnections {
 
                 assert boardId != null;
 
-                getAllListsSrv.listBoards(CredentialFactory.CLIENT_ID, credential.getAccessToken(), boardId, new Callback<List<Item>>() {
+                getAllListsSrv.getLists(CredentialFactory.CLIENT_ID, credential.getAccessToken(), boardId, new Callback<List<Item>>() {
                     @Override
                     public void success(List<Item> list, Response response) {
                         callback.success(list);
@@ -71,6 +73,63 @@ public class TTConnections {
                     @Override
                     public void failure(RetrofitError error) {
                         callback.failure(error.getCause());
+                    }
+                });
+            }
+        }).start();
+    }
+
+    public void getTasks(final ListType listType, final CredentialFactory credentialFactory, final TTCallback<List<Item>> callback) {
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                Credential credential = getCredential(credentialFactory, callback);
+
+                RestAdapter boardRestAdapter = buildAdapter();
+                GetTasksSrv getTasksSrv = boardRestAdapter.create(GetTasksSrv.class);
+
+                final String listId = store.getListId(listType);
+
+                assert listId != null;
+
+                getTasksSrv.getCards(CredentialFactory.CLIENT_ID, credential.getAccessToken(), listId, new Callback<List<Item>>() {
+                    @Override
+                    public void success(List<Item> list, Response response) {
+                        callback.success(list);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        callback.failure(error.getCause());
+                    }
+                });
+            }
+        }).start();
+    }
+
+
+    public void moveToList(final String cardId, final ListType listType, final CredentialFactory credentialFactory, final TTCallback<List<Item>> callback) {
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                Credential credential = getCredential(credentialFactory, callback);
+
+                RestAdapter boardRestAdapter = buildAdapter();
+                MoveToListSrv srv = boardRestAdapter.create(MoveToListSrv.class);
+
+                final String listId = store.getListId(listType);
+
+                assert listId != null;
+
+                srv.moveToList(CredentialFactory.CLIENT_ID, credential.getAccessToken(), cardId, listId, new Callback<Void>() {
+                    @Override
+                    public void success(Void v, Response response2) {
+                        callback.success(null);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        callback.failure(error);
                     }
                 });
             }
@@ -91,4 +150,5 @@ public class TTConnections {
     private RestAdapter buildAdapter() {
         return new RestAdapter.Builder().setEndpoint(BASE_TRELLO_URL).build();
     }
+
 }

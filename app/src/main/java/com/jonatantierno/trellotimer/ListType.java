@@ -6,15 +6,21 @@ package com.jonatantierno.trellotimer;
 public enum ListType {
     TODO, DOING, DONE;
 
+    private int[] stringId = new int[]{R.string.todo, R.string.doing, R.string.done};
+
+    public static final int SIZE = values().length;
+
     public static ListType nextListType(ListType type) {
-        switch(type){
-            case TODO:
-                return DOING;
-            case DOING:
-                return DONE;
-            default:
-            case DONE:
-                return TODO;
-        }
+        int nextIndex = (type.ordinal() +1) % SIZE;
+
+        return ListType.ofIndex(nextIndex);
+    }
+
+    public static ListType ofIndex(int index){
+        return ListType.values()[index];
+    }
+
+    public int getStringId(){
+        return stringId[ordinal()];
     }
 }

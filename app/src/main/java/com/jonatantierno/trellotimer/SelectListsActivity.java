@@ -3,7 +3,6 @@ package com.jonatantierno.trellotimer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -13,14 +12,13 @@ import android.widget.TextView;
  * Created by jonatan on 16/04/15.
  */
 public class SelectListsActivity extends ConfigActivity<Item> {
-    public static final int NUMBER_OF_LIST_TYPES = ListType.values().length;
 
     ListType selectedListType = ListType.TODO;
-    int[] savedListsIndexes = new int[NUMBER_OF_LIST_TYPES];
+    int[] savedListsIndexes = new int[ListType.SIZE];
 
-    TextView[] textViews = new TextView[NUMBER_OF_LIST_TYPES];
-    EditText[] editTexts = new EditText[NUMBER_OF_LIST_TYPES];
-    View[] layouts = new View[NUMBER_OF_LIST_TYPES];
+    TextView[] textViews = new TextView[ListType.SIZE];
+    EditText[] editTexts = new EditText[ListType.SIZE];
+    View[] layouts = new View[ListType.SIZE];
 
     public Button listFinishButton;
 

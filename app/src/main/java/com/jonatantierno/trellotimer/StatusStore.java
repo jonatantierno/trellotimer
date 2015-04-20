@@ -42,6 +42,9 @@ public class StatusStore {
     public String getBoardId() {
         return prefs.getString(BOARD_ID,null);
     }
+    public String getListId(ListType listType) {
+        return prefs.getString(LIST_ID+ listType.name(),null);
+    }
 
     public void saveList(ListType type, Item list){
         prefs.edit().putString(LIST_ID +type.name(), list.id).commit();
@@ -80,4 +83,5 @@ public class StatusStore {
         }
         return true;
     }
+
 }

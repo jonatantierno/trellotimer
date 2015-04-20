@@ -15,6 +15,7 @@ import com.wuman.android.auth.OAuthManager;
 import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 
 /**
@@ -27,7 +28,7 @@ public class CredentialFactory {
 
     public static final String OAUTH_STORE_NAME = "oauth_store";
     public static final String ACCESS_TOKEN_URL = "https://trello.com/1/OAuthGetAccessToken";
-    public static final String AUTHORIZE_TOKEN_URL = "https://trello.com/1/OAuthAuthorizeToken";
+    public static final String AUTHORIZE_TOKEN_URL = "https://trello.com/1/OAuthAuthorizeToken?scope=read,write";
     public static final String REQUEST_TOKEN_URL = "https://trello.com/1/OAuthGetRequestToken";
 
     private OAuthManager oAuthManager;
@@ -48,6 +49,8 @@ public class CredentialFactory {
                 AUTHORIZE_TOKEN_URL)
                 .setTemporaryTokenRequestUrl(REQUEST_TOKEN_URL)
                 .setCredentialStore(credentialStore);
+
+        flowBuilder.setScopes(Arrays.asList("write", "read"));
 
         AuthorizationUIController controller =
                 new DialogFragmentController(context.getFragmentManager()) {
