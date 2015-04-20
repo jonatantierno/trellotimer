@@ -7,14 +7,18 @@
     <string name="select_board">Select the board than contains your tasks</string>
     <string name="select_lists">Select three lists that contain your tasks:</string>
     <string name="continue_">Continue</string>
+    <string name="trello_error">Error conneting to Trello.</string>
     <string name="connection_error">There was a problem connecting with the server. Please make sure your Internet Connection is working properly.</string>
     <string name="finish">Finish</string>
     <string name="todo">TODO</string>
-    <string name="doing">DONE</string>
-    <string name="done">DOING</string>
+    <string name="doing">DOING</string>
+    <string name="done">DONE</string>
     <string name="title_activity_tasks">TasksActivityActivity</string>
 
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
+    <string name="connect">Connect with Trello</string>
+    <string name="connecting">Connecting with Trello...</string>
+    <string name="Intro">To start using this application, you need to connect to your Trello Account.</string>
 </resources>

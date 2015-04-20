@@ -12,14 +12,16 @@ import android.widget.TextView;
  * In this activity the user selects the three lists to use
  * Created by jonatan on 16/04/15.
  */
-public class SelectListsActivity extends ConfigActivity<Item>{
-    ViewGroup todoGroupView;
+public class SelectListsActivity extends ConfigActivity<Item> {
+    public static final int NUMBER_OF_LIST_TYPES = ListType.values().length;
 
-    ListType selectedList = ListType.TODO;
-    boolean[] savedLists = new boolean[ListType.values().length];
+    ListType selectedListType = ListType.TODO;
+    int[] savedListsIndexes = new int[NUMBER_OF_LIST_TYPES];
 
-    TextView[] textViews = new TextView[ListType.values().length];
-    EditText[] editTexts = new EditText[ListType.values().length];
+    TextView[] textViews = new TextView[NUMBER_OF_LIST_TYPES];
+    EditText[] editTexts = new EditText[NUMBER_OF_LIST_TYPES];
+    View[] layouts = new View[NUMBER_OF_LIST_TYPES];
+
     public Button listFinishButton;
 
     public SelectListsActivity(){
@@ -30,6 +32,36 @@ public class SelectListsActivity extends ConfigActivity<Item>{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        initializeViews();
+
+        for(int i = 0; i<savedListsIndexes.length; i++){
+            savedListsIndexes[i] = -1;
+        }
+
+        setTextColor(ListType.TODO, R.color.text_current);
+
+        connections.getLists(credentialFactory, this);
+    }
+
+    private void initializeViews() {
+        layouts[ListType.TODO.ordinal()] = findViewById(R.id.list_todoView);
+        layouts[ListType.DOING.ordinal()] = findViewById(R.id.list_doingView);
+        layouts[ListType.DONE.ordinal()] = findViewById(R.id.list_doneView);
+
+        layouts[ListType.TODO.ordinal()].setTag(ListType.TODO);
+        layouts[ListType.DOING.ordinal()].setTag(ListType.DOING);
+        layouts[ListType.DONE.ordinal()].setTag(ListType.DONE);
+
+        for (int i = 0; i<layouts.length; i++){
+            layouts[i].setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    selectListType(v);
+                }
+            });
+        }
+
         textViews[ListType.TODO.ordinal()] = (TextView) findViewById(R.id.list_todoTextView);
         textViews[ListType.DOING.ordinal()] = (TextView) findViewById(R.id.list_doingTextView);
         textViews[ListType.DONE.ordinal()] =(TextView) findViewById(R.id.list_doneTextView);
@@ -38,19 +70,32 @@ public class SelectListsActivity extends ConfigActivity<Item>{
         editTexts[ListType.DOING.ordinal()] = (EditText) findViewById(R.id.list_doingEditText);
         editTexts[ListType.DONE.ordinal()] = (EditText) findViewById(R.id.list_doneEditText);
 
+        editTexts[ListType.TODO.ordinal()].setTag(ListType.TODO);
+        editTexts[ListType.DOING.ordinal()].setTag(ListType.DOING);
+        editTexts[ListType.DONE.ordinal()].setTag(ListType.DONE);
+
+        for (int i = 0; i<layouts.length; i++){
+            editTexts[i].setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        selectListType(v);
+                    }
+                }
+            });
+        }
+
         listFinishButton = (Button) findViewById(R.id.listFinishButton);
 
-        listFinishButton.setOnClickListener(new View.OnClickListener(){
+        listFinishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SelectListsActivity.this, TasksActivity.class));
+                final Intent intent = new Intent(SelectListsActivity.this, TasksActivity.class);
+                startActivity(intent);
                 finish();
             }
         });
-
-        setTextColor(ListType.TODO, R.color.text_current);
-
-        connections.getLists(credentialFactory, this);
     }
 
     private void setTextColor(ListType type, int color){
@@ -60,30 +105,74 @@ public class SelectListsActivity extends ConfigActivity<Item>{
     @Override
     public void onItemSelected(int position, View selectedItem) {
         assert(position >= 0 && position < list.size());
-        final Item list = this.list.get(position);
 
-        setTextColor(selectedList,R.color.text_correct);
-        setTextColor(ListType.nextListType(selectedList), R.color.text_current);
-        savedLists[selectedList.ordinal()] = true;
-        store.saveList(selectedList, list);
-        editTexts[selectedList.ordinal()].setText(list.name);
+        if (!list.get(position).selected){
+            setSelected(position);
+        }
+    }
 
-        selectedItem.setBackgroundColor(R.color.background_selectedList);
+    private void setSelected(int position) {
+        final Item selectedList = this.list.get(position);
 
-        selectedList = ListType.nextListType(selectedList);
+        unselectPreviousList();
+
+        savedListsIndexes[this.selectedListType.ordinal()] = position;
+
+        store.saveList(this.selectedListType, selectedList);
+        editTexts[this.selectedListType.ordinal()].setText(selectedList.name);
+
+        unselectListType(this.selectedListType);
+
+        selectedList.selected = true;
+        mAdapter.notifyDataSetChanged();
+
+        nextListTypeToSelect();
 
         if (allListsReady()){
             listFinishButton.setVisibility(View.VISIBLE);
+        }
+    }
 
+    private void unselectListType(ListType listType) {
+        if (editTexts[listType.ordinal()].getText().toString().equals("")) {
+            setTextColor(listType, R.color.text_pending);
+        } else {
+            setTextColor(listType, R.color.text_correct);
+        }
+    }
+
+    private void nextListTypeToSelect() {
+        setTextColor(ListType.nextListType(this.selectedListType), R.color.text_current);
+        this.selectedListType = ListType.nextListType(this.selectedListType);
+    }
+
+    private void unselectPreviousList() {
+        int previousIndex = savedListsIndexes[this.selectedListType.ordinal()];
+        if (previousIndex != -1 && list.get(previousIndex).selected){
+            list.get(previousIndex).selected = false;
         }
     }
 
     private boolean allListsReady() {
-        for(int i=0;i<savedLists.length; i++){
-            if (!savedLists[i]) {
+        for(int i=0;i< savedListsIndexes.length; i++){
+            if (savedListsIndexes[i] == -1) {
                 return false;
             }
         }
         return true;
+    }
+
+    private void selectListType(View v) {
+        unselectListType(selectedListType);
+
+        selectedListType = (ListType)v.getTag();
+        setTextColor(selectedListType,R.color.text_current);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        startActivity(new Intent(this, SelectBoardActivity.class));
     }
 }

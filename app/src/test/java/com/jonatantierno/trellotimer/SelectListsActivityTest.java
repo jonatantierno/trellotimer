@@ -1,5 +1,6 @@
 package com.jonatantierno.trellotimer;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 
@@ -21,7 +22,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -31,11 +31,10 @@ import static org.mockito.Mockito.verify;
 @Config(constants = BuildConfig.class, emulateSdk = 21)
 public class SelectListsActivityTest {
 
-    public static final String BOARD_NAME = "board_name";
-    public static final String BOARD_ID = "board_id";
     public static final String LIST_NAME_TODO = "list_name_todo";
     public static final String LIST_NAME_DOING = "list_name_doing";
     public static final String LIST_NAME_DONE = "list_name_done";
+    private static final String LIST_NAME_TODO_AGAIN = "list_name_todo_again";
     SelectListsActivity activity;
     ActivityController<SelectListsActivity> activityController;
     TTConnections connections = mock(TTConnections.class);
@@ -68,7 +67,6 @@ public class SelectListsActivityTest {
 
     }
 
-
     @Test
     public void whenListsSelectedShouldStoreItAndSelectNext(){
         activityController.create();
@@ -76,25 +74,27 @@ public class SelectListsActivityTest {
         Item itemTodo = new Item("list_id_todo", LIST_NAME_TODO);
         Item itemDoing = new Item("list_id_doing", LIST_NAME_DOING);
         Item itemDone = new Item("list_id_done", LIST_NAME_DONE);
+        Item itemTodoAgain = new Item("list_id_todoAgain", LIST_NAME_TODO_AGAIN);
 
         List<Item> list = new ArrayList<>();
         list.add(itemTodo);
         list.add(itemDoing);
         list.add(itemDone);
+        list.add(itemTodoAgain);
 
         activity.success(list);
 
         assertEquals(View.GONE, activity.progressBar.getVisibility());
 
         View selectedItem = mock(View.class);
-        activity.onItemSelected(0,selectedItem);
+        activity.onItemSelected(0, selectedItem);
 
         verify(store).saveList(ListType.TODO, itemTodo);
         assertEquals(activity.getResources().getColor(R.color.text_correct), activity.textViews[ListType.TODO.ordinal()].getCurrentTextColor());
         assertEquals(activity.getResources().getColor(R.color.text_current), activity.textViews[ListType.DOING.ordinal()].getCurrentTextColor());
         assertEquals(activity.getResources().getColor(R.color.text_pending), activity.textViews[ListType.DONE.ordinal()].getCurrentTextColor());
         assertEquals(LIST_NAME_TODO, activity.editTexts[ListType.TODO.ordinal()].getText().toString());
-        verify(selectedItem).setBackgroundColor(R.color.background_selectedList);
+        assertTrue(itemTodo.selected);
 
         activity.onItemSelected(1, selectedItem);
 
@@ -103,7 +103,7 @@ public class SelectListsActivityTest {
         assertEquals(activity.getResources().getColor(R.color.text_correct), activity.textViews[ListType.DOING.ordinal()].getCurrentTextColor());
         assertEquals(activity.getResources().getColor(R.color.text_current), activity.textViews[ListType.DONE.ordinal()].getCurrentTextColor());
         assertEquals(LIST_NAME_DOING, activity.editTexts[ListType.DOING.ordinal()].getText().toString());
-        verify(selectedItem,times(2)).setBackgroundColor(R.color.background_selectedList);
+        assertTrue(itemDoing.selected);
 
         activity.onItemSelected(2, selectedItem);
 
@@ -112,11 +112,16 @@ public class SelectListsActivityTest {
         assertEquals(activity.getResources().getColor(R.color.text_correct), activity.textViews[ListType.DOING.ordinal()].getCurrentTextColor());
         assertEquals(activity.getResources().getColor(R.color.text_correct), activity.textViews[ListType.DONE.ordinal()].getCurrentTextColor());
         assertEquals(LIST_NAME_DONE, activity.editTexts[ListType.DONE.ordinal()].getText().toString());
-        verify(selectedItem,times(3)).setBackgroundColor(R.color.background_selectedList);
+        assertTrue(itemDone.selected);
 
         assertEquals(View.VISIBLE, activity.listFinishButton.getVisibility());
 
         assertFalse(activity.isFinishing());
+
+        activity.onItemSelected(3, selectedItem);
+
+        assertFalse(itemTodo.selected);
+        assertTrue(itemTodoAgain.selected);
     }
 
     @Test
@@ -125,14 +130,27 @@ public class SelectListsActivityTest {
 
         activity.listFinishButton.performClick();
 
-        checkAdvanceToConfig(activity);
+        MainActivityTest.checkGoneTo(activity, TasksActivity.class);
     }
 
-    private void checkAdvanceToConfig(SelectListsActivity activity) {
-        Intent nextActivity = Shadows.shadowOf(activity).getNextStartedActivity();
+    @Test
+    public void whenPressEditTextThenMakeCurrent(){
+        activityController.create();
 
-        assertNotNull(nextActivity);
-        assertEquals(TasksActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
-        assertTrue(activity.isFinishing());
+        activity.layouts[ListType.DONE.ordinal()].performClick();
+
+        assertEquals(activity.getResources().getColor(R.color.text_pending), activity.textViews[ListType.TODO.ordinal()].getCurrentTextColor());
+        assertEquals(activity.getResources().getColor(R.color.text_current), activity.textViews[ListType.DONE.ordinal()].getCurrentTextColor());
+        activity.selectedListType = ListType.DONE;
+
+    }
+
+    @Test
+    public void whenBackThenGoToSelectBoard(){
+        activityController.create();
+
+        activity.onBackPressed();
+
+        MainActivityTest.checkGoneTo(activity, SelectBoardActivity.class);
     }
 }

@@ -38,7 +38,7 @@
                 android:text="@string/todo"/>
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:editable="false"
                 android:id="@+id/list_todoEditText" />
@@ -60,7 +60,7 @@
                 android:text="@string/doing"/>
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:editable="false"
                 android:id="@+id/list_doingEditText" />
@@ -82,7 +82,7 @@
                 android:text="@string/done"/>
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:editable="false"
                 android:id="@+id/list_doneEditText" />

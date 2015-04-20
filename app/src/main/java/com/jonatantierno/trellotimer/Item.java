@@ -7,9 +7,11 @@ package com.jonatantierno.trellotimer;
 public class Item {
     public final String id;
     public final String name;
+    public boolean selected;
 
     public Item(String id, String name) {
         this.id = id;
         this.name = name;
+        selected = false;
     }
 }

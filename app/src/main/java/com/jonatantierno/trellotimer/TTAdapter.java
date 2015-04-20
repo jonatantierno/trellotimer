@@ -23,17 +23,20 @@ public class TTAdapter<T extends Item> extends RecyclerView.Adapter<TTAdapter.Vi
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         // each data item is just a string in this case
         public TextView mTextView;
+        public View layout;
         private final OnTTItemSelectedListener itemSelectedListener;
 
         public ViewHolder(ViewGroup v, OnTTItemSelectedListener itemSelectedListener) {
             super(v);
             this.itemSelectedListener = itemSelectedListener;
             this.mTextView = (TextView)v.findViewById(R.id.boardName);
+            this.layout = v;
         }
 
         @Override
         public void onClick(View v) {
             this.itemSelectedListener.onItemSelected(getPosition(), v);
+
         }
     }
 
@@ -41,15 +44,12 @@ public class TTAdapter<T extends Item> extends RecyclerView.Adapter<TTAdapter.Vi
         this.list = list;
         this.itemSelectedListener = itemSelectedListener;
     }
-    // Create new views (invoked by the layout manager)
+
     @Override
     public TTAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                    int viewType) {
-        // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.board_list_view, parent, false);
-        // set the view's size, margins, paddings and layout parameters
-
 
         ViewHolder vh = new ViewHolder((ViewGroup) v, itemSelectedListener);
         v.setOnClickListener(vh);
@@ -57,15 +57,19 @@ public class TTAdapter<T extends Item> extends RecyclerView.Adapter<TTAdapter.Vi
         return vh;
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
-        holder.mTextView.setText(list.get(position).name);
+        final T currentList = list.get(position);
+        holder.mTextView.setText(currentList.name);
+
+        int backgroundColor = holder.layout.getContext().getResources().getColor(R.color.background_notSelected);
+        if (currentList.selected) {
+            backgroundColor = holder.layout.getContext().getResources().getColor(R.color.background_selected);
+        }
+
+        holder.layout.setBackgroundColor(backgroundColor);
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return list.size();

@@ -47,4 +47,37 @@ public class StatusStore {
         prefs.edit().putString(LIST_ID +type.name(), list.id).commit();
         prefs.edit().putString(LIST_NAME + type.name(), list.name).commit();
     }
+
+    public boolean userFinishedConfig() {
+        if (!userConfiguredBoard()){
+            return false;
+        }
+        for(int i = 0; i< ListType.values().length; i++){
+            if (!userConfiguredList(ListType.values()[i])){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean userConfiguredList(ListType listType) {
+        ListType type = listType;
+        if (prefs.getString(LIST_NAME+type.name(),null) == null) {
+            return false;
+        }
+        if (prefs.getString(LIST_ID+type.name(),null) == null) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean userConfiguredBoard() {
+        if (prefs.getString(BOARD_ID,null) == null) {
+            return false;
+        }
+        if (prefs.getString(BOARD_NAME,null) == null) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -80,6 +80,6 @@ public class SelectBoardActivityTest {
 
         assertNotNull(nextActivity);
         assertEquals(SelectListsActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
-        assertFalse(activity.isFinishing());
+        assertTrue(activity.isFinishing());
     }
 }

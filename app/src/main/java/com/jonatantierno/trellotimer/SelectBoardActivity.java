@@ -27,5 +27,6 @@ public class SelectBoardActivity extends ConfigActivity<Item>  {
         store.saveBoard(list.get(position));
 
         startActivity(new Intent(this,SelectListsActivity.class));
+        finish();
     }
 }
