@@ -76,6 +76,8 @@ public class TTAdapter<T extends Item> extends RecyclerView.Adapter<TTAdapter.Vi
 
     private void prepareButton(ViewHolder vh, View button) {
         button.setOnClickListener(vh);
+        button.setVisibility(View.GONE);
+
         if (button.getId() == R.id.moveRightButton
                 && itemSelectedListener.showRightButton()) {
             button.setVisibility(View.VISIBLE);
