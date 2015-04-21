@@ -23,9 +23,9 @@ public abstract class ConfigActivity<T extends Item> extends ActionBarActivity i
     ProgressBar progressBar;
     TextView messageTextView;
 
-    RecyclerView mRecyclerView;
-    LinearLayoutManager mLayoutManager;
-    TTAdapter mAdapter;
+    RecyclerView listView;
+    LinearLayoutManager listLayoutManager;
+    TTAdapter listAdapter;
     protected final List<T> list;
 
     ConfigActivity(int layoutId){
@@ -39,26 +39,37 @@ public abstract class ConfigActivity<T extends Item> extends ActionBarActivity i
         super.onCreate(savedInstanceState);
         setContentView(layoutId);
 
+        initGlobalObjects();
+
+        initUxElements();
+    }
+
+    private void prepareList() {
+        listLayoutManager = new LinearLayoutManager(this);
+        listView.setLayoutManager(listLayoutManager);
+
+        listAdapter = new TTAdapter(list,this);
+        listView.setAdapter(listAdapter);
+    }
+
+    private void initUxElements() {
+        progressBar = (ProgressBar) findViewById(R.id.boardProgressBar);
+        messageTextView = (TextView) findViewById(R.id.boardTextView);
+        listView = (RecyclerView) findViewById(R.id.boardList);
+
+        prepareList();
+    }
+
+    private void initGlobalObjects() {
         credentialFactory = ((TTApplication) getApplication()).credentialFactory;
         store = ((TTApplication) getApplication()).store;
         connections = ((TTApplication) getApplication()).connections;
-
-        progressBar = (ProgressBar) findViewById(R.id.boardProgressBar);
-        messageTextView = (TextView) findViewById(R.id.boardTextView);
-        mRecyclerView = (RecyclerView) findViewById(R.id.boardList);
-
-        // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        mAdapter = new TTAdapter(list,this);
-        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
     public void success(List<T> result) {
-        mAdapter.addItems(result);
-        mRecyclerView.requestLayout();
+        listAdapter.addItems(result);
+        listAdapter.notifyItemRangeInserted(0, result.size());
         progressBar.setVisibility(View.GONE);
     }
 

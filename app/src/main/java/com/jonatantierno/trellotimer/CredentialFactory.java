@@ -74,4 +74,7 @@ public class CredentialFactory {
         return oAuthManager.authorize10a(OAUTH_USER_ID, null, null).getResult();
     }
 
+    public void deleteCredentials() {
+        oAuthManager.deleteCredential(OAUTH_USER_ID,null,null);
+    }
 }

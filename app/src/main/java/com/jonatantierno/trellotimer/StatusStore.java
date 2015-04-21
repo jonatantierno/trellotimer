@@ -84,4 +84,7 @@ public class StatusStore {
         return true;
     }
 
+    public void reset() {
+        prefs.edit().clear().commit();
+    }
 }

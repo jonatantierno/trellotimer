@@ -122,7 +122,7 @@ public class SelectListsActivity extends ConfigActivity<Item> {
         unselectListType(this.selectedListType);
 
         selectedList.selected = true;
-        mAdapter.notifyDataSetChanged();
+        listAdapter.notifyDataSetChanged();
 
         nextListTypeToSelect();
 

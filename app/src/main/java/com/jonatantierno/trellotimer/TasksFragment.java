@@ -23,7 +23,7 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
     LinearLayoutManager listLayoutManager;
     TTAdapter listAdapter = TTAdapter.NULL;
     TasksActivity activity;
-    TextView instructionsTextView;
+    TextView infoTextView;
 
     final List<Item> list;
     private boolean firstTime = true;
@@ -54,12 +54,12 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
 
         listType = ListType.ofIndex(getArguments().getInt(ARG_TAB_NUMBER));
 
-
-
         View rootView = inflater.inflate(R.layout.fragment_tasks, container, false);
 
         listView = (RecyclerView) rootView.findViewById(R.id.taskList);
-        instructionsTextView = (TextView) rootView.findViewById(R.id.instructionsTextView);
+        infoTextView = (TextView) rootView.findViewById(R.id.taskInfoTextView);
+        infoTextView.setText(getResources().getStringArray(R.array.task_info_string)[listType.ordinal()]);
+
         listLayoutManager = new LinearLayoutManager(this.getActivity());
         listView.setLayoutManager(listLayoutManager);
 
@@ -75,6 +75,8 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
     }
 
     private void requestTasks() {
+        activity.startLoading();
+
         ((TasksActivity) getActivity()).connections.getTasks(
                 listType,
                 ((TasksActivity) getActivity()).credentialFactory,
@@ -84,12 +86,14 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
     @Override
     public void success(List<Item> result) {
         listAdapter.addItems(result);
-        listView.requestLayout();
+        listAdapter.notifyItemRangeInserted(0, result.size());
+        activity.stopLoading();
     }
 
     @Override
     public void failure(Throwable cause) {
-
+        activity.stopLoading();
+        infoTextView.setText(R.string.trello_error);
     }
 
     @Override
@@ -99,6 +103,12 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
 
     @Override
     public void onItemLeft(final int position, final View selectedItem) {
+        if (activity.isLoading()){
+            return;
+        }
+
+        activity.startLoading();
+
         activity.connections.moveToList(
                 list.get(position).id,
                 ListType.prevListType(listType),
@@ -107,19 +117,27 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
 
                     @Override
                     public void success(List<Item> result) {
-                        onTaskMoved(position,ListType.prevListType(listType));
+                        onTaskMoved(position, ListType.prevListType(listType));
+                        activity.stopLoading();
                     }
 
                     @Override
                     public void failure(Throwable cause) {
-                        instructionsTextView.setText(R.string.trello_error);
+                        infoTextView.setText(R.string.trello_error);
                         Log.e("TAG",cause.toString() );
+                        activity.stopLoading();
                     }
                 });
     }
 
     @Override
     public void onItemRight(final int position, View selectedItem) {
+        if (activity.isLoading()){
+            return;
+        }
+
+        activity.startLoading();
+
         activity.connections.moveToList(
                 list.get(position).id,
                 ListType.nextListType(listType),
@@ -128,13 +146,15 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
 
                     @Override
                     public void success(List<Item> result) {
-                        onTaskMoved(position,ListType.nextListType(listType));
+                        onTaskMoved(position, ListType.nextListType(listType));
+
                     }
 
                     @Override
                     public void failure(Throwable cause) {
-                        instructionsTextView.setText(R.string.trello_error);
+                        infoTextView.setText(R.string.trello_error);
                         Log.e("TAG",cause.toString() );
+                        activity.stopLoading();
                     }
                 });
     }
@@ -150,6 +170,7 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
     }
 
     void onTaskMoved(int position, ListType toType) {
+        activity.stopLoading();
         Item movedTask = list.remove(position);
         listAdapter.notifyItemRemoved(position);
 

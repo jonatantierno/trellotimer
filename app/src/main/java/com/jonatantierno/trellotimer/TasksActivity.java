@@ -3,6 +3,7 @@ package com.jonatantierno.trellotimer;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,8 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 
 public class TasksActivity extends ActionBarActivity implements ActionBar.TabListener {
@@ -38,20 +41,20 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
     CredentialFactory credentialFactory;
     StatusStore store;
     TTConnections connections;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tasks);
 
-        credentialFactory = ((TTApplication) getApplication()).credentialFactory;
-        store = ((TTApplication) getApplication()).store;
-        connections = ((TTApplication) getApplication()).connections;
+        getGlobalObjects();
 
-        fragments[ListType.TODO.ordinal()] = TasksFragment.newInstance(ListType.TODO.ordinal());
-        fragments[ListType.DOING.ordinal()] = TasksFragment.newInstance(ListType.DOING.ordinal());
-        fragments[ListType.DONE.ordinal()] = TasksFragment.newInstance(ListType.DONE.ordinal());
+        initUxElements();
+        initTabs();
+    }
 
+    private void initTabs() {
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -80,6 +83,20 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
         }
     }
 
+    private void initUxElements() {
+        fragments[ListType.TODO.ordinal()] = TasksFragment.newInstance(ListType.TODO.ordinal());
+        fragments[ListType.DOING.ordinal()] = TasksFragment.newInstance(ListType.DOING.ordinal());
+        fragments[ListType.DONE.ordinal()] = TasksFragment.newInstance(ListType.DONE.ordinal());
+
+        progressBar = (ProgressBar) findViewById(R.id.tasks_progressBar);
+    }
+
+    private void getGlobalObjects() {
+        credentialFactory = ((TTApplication) getApplication()).credentialFactory;
+        store = ((TTApplication) getApplication()).store;
+        connections = ((TTApplication) getApplication()).connections;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -96,10 +113,18 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_delete_credentials) {
+            credentialFactory.deleteCredentials();
+            store.reset();
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
             return true;
         }
-
+        if (id == R.id.action_configure_lists) {
+            startActivity(new Intent(this,SelectBoardActivity.class));
+            finish();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -120,6 +145,18 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
 
     public void addToList(ListType listType, Item movedTask) {
         fragments[listType.ordinal()].addToList(movedTask);
+    }
+
+    public boolean isLoading() {
+        return progressBar.getVisibility() == View.VISIBLE;
+    }
+
+    public void startLoading() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void stopLoading() {
+        progressBar.setVisibility(View.GONE);
     }
 
     /**

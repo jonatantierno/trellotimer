@@ -2,7 +2,8 @@
     <string name="app_name">Trello Timer</string>
 
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_delete_credentials">Delete Credentials</string>
+    <string name="action_configure_lists">Configure lists</string>
     <string name="title_activity_config">Configuration</string>
     <string name="select_board">Select the board than contains your tasks</string>
     <string name="select_lists">Select three lists that contain your tasks:</string>
@@ -21,5 +22,10 @@
     <string name="connect">Connect with Trello</string>
     <string name="connecting">Connecting with Trello...</string>
     <string name="Intro">To start using this application, you need to connect to your Trello Account.</string>
-    <string name="tap_to_start_doing">Tap on a task to move it to the DOING list.</string>
+    <string-array
+        name="task_info_string">
+        <item>Use the buttons to move tasks to the DOING list.</item>
+        <item>Use the buttons to move tasks to the TODO or DOING list. Tap on a taks to start a Pomodoro with it.</item>
+        <item>Use the buttons to move tasks to the DOING list.</item>
+    </string-array>
 </resources>
