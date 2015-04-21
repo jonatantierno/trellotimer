@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.google.api.client.auth.oauth2.Credential;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +49,7 @@ public class MainActivityTest {
         application.credentialFactory= credentialFactory;
         when(credentialFactory.getCredential()).thenReturn(mock(Credential.class));
     }
+
 
     @Test
     public void whenAlreadySignedInThenGoToSelectBoard(){

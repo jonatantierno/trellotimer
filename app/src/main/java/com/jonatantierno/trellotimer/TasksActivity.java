@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 
 public class TasksActivity extends ActionBarActivity implements ActionBar.TabListener {
 
+    public static final String EXTRA_CARD_ID = "EXTRA_CARD_ID";
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a

@@ -1,5 +1,6 @@
 package com.jonatantierno.trellotimer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -98,7 +99,20 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
 
     @Override
     public void onItemSelected(final int position, View selectedItem) {
+        if (listType == ListType.DOING){
+            saveCurrentTask(position);
+            goToTimerActivity(position);
+        }
+    }
 
+    private void saveCurrentTask(int position) {
+        ((TTApplication)activity.getApplication()).taskStore.putTask(new Task(list.get(position)));
+    }
+
+    private void goToTimerActivity(int position) {
+        final Intent intent = new Intent(activity, TimerActivity.class);
+        intent.putExtra(TasksActivity.EXTRA_CARD_ID, list.get(position).id);
+        activity.startActivity(intent);
     }
 
     @Override
@@ -113,7 +127,7 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
                 list.get(position).id,
                 ListType.prevListType(listType),
                 activity.credentialFactory,
-                new TTCallback<List<Item>>(){
+                new TTCallback<List<Item>>() {
 
                     @Override
                     public void success(List<Item> result) {
@@ -124,7 +138,7 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
                     @Override
                     public void failure(Throwable cause) {
                         infoTextView.setText(R.string.trello_error);
-                        Log.e("TAG",cause.toString() );
+                        Log.e("TAG", cause.toString());
                         activity.stopLoading();
                     }
                 });
@@ -142,7 +156,7 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
                 list.get(position).id,
                 ListType.nextListType(listType),
                 activity.credentialFactory,
-                new TTCallback<List<Item>>(){
+                new TTCallback<List<Item>>() {
 
                     @Override
                     public void success(List<Item> result) {
@@ -153,7 +167,7 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
                     @Override
                     public void failure(Throwable cause) {
                         infoTextView.setText(R.string.trello_error);
-                        Log.e("TAG",cause.toString() );
+                        Log.e("TAG", cause.toString());
                         activity.stopLoading();
                     }
                 });
