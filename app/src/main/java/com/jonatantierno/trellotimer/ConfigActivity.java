@@ -67,4 +67,23 @@ public abstract class ConfigActivity<T extends Item> extends ActionBarActivity i
         messageTextView.setText(R.string.connection_error);
         progressBar.setVisibility(View.GONE);
     }
+
+    @Override
+    public void onItemLeft(int position, View selectedItem) {
+        // Nothing to do
+    }
+
+    @Override
+    public void onItemRight(int position, View selectedItem) {
+        // Nothing to do
+    }
+    @Override
+    public boolean showRightButton() {
+        return false;
+    }
+
+    @Override
+    public boolean showLeftButton() {
+        return false;
+    }
 }

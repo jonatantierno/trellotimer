@@ -16,6 +16,14 @@ public enum ListType {
         return ListType.ofIndex(nextIndex);
     }
 
+    public static ListType prevListType(ListType type) {
+        int nextIndex = type.ordinal() -1;
+        if(nextIndex < 0){
+            nextIndex = SIZE -1;
+        }
+        return ListType.ofIndex(nextIndex);
+    }
+
     public static ListType ofIndex(int index){
         return ListType.values()[index];
     }

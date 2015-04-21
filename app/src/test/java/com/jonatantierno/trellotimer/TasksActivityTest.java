@@ -14,9 +14,11 @@ import org.robolectric.util.ActivityController;
 import org.robolectric.util.FragmentTestUtil;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -54,20 +56,30 @@ public class TasksActivityTest {
         activity.testing = true;
         activityController.create();
 
-        TasksFragment fragment = activity.fragments[ListType.TODO.ordinal()];
-        fragment.listType = ListType.TODO;
-        fragment.activity = activity;
+        TasksFragment todoFragment = getFragment(ListType.TODO);
+        TasksFragment doingFragment = getFragment(ListType.DOING);
+        TasksFragment doneFragment = getFragment(ListType.DONE);
 
         final View selectedView = mock(View.class);
 
         Item card= new Item(CARD_ID, CARD_NAME);
 
-        fragment.list.add(card);
-        fragment.onItemSelected(0, selectedView);
+        todoFragment.list.add(card);
+        todoFragment.onItemRight(0, selectedView);
 
         verify(connections).moveToList(eq(CARD_ID), eq(ListType.DOING), eq(credentialFactory), any(TTCallback.class));
 
-        //assertFalse(fragment.list.contains(card));
+        todoFragment.onTaskMoved(0,ListType.DOING);
+        assertFalse(todoFragment.list.contains(card));
+        assertTrue(doingFragment.list.contains(card));
+
+    }
+
+    private TasksFragment getFragment(ListType type) {
+        TasksFragment fragment = activity.fragments[type.ordinal()];
+        fragment.listType = type;
+        fragment.activity = activity;
+        return fragment;
     }
 
 

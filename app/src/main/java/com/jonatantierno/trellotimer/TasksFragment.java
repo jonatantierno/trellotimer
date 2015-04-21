@@ -21,7 +21,7 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
 
     RecyclerView listView;
     LinearLayoutManager listLayoutManager;
-    TTAdapter listAdapter;
+    TTAdapter listAdapter = TTAdapter.NULL;
     TasksActivity activity;
     TextView instructionsTextView;
 
@@ -52,9 +52,11 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
                              Bundle savedInstanceState) {
         activity = (TasksActivity) getActivity();
 
-        View rootView = inflater.inflate(R.layout.fragment_tasks, container, false);
-
         listType = ListType.ofIndex(getArguments().getInt(ARG_TAB_NUMBER));
+
+
+
+        View rootView = inflater.inflate(R.layout.fragment_tasks, container, false);
 
         listView = (RecyclerView) rootView.findViewById(R.id.taskList);
         instructionsTextView = (TextView) rootView.findViewById(R.id.instructionsTextView);
@@ -92,16 +94,20 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
 
     @Override
     public void onItemSelected(final int position, View selectedItem) {
+
+    }
+
+    @Override
+    public void onItemLeft(final int position, final View selectedItem) {
         activity.connections.moveToList(
                 list.get(position).id,
-                ListType.nextListType(listType),
+                ListType.prevListType(listType),
                 activity.credentialFactory,
                 new TTCallback<List<Item>>(){
 
                     @Override
                     public void success(List<Item> result) {
-                        list.remove(position);
-                        listAdapter.notifyDataSetChanged();
+                        onTaskMoved(position,ListType.prevListType(listType));
                     }
 
                     @Override
@@ -110,5 +116,48 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
                         Log.e("TAG",cause.toString() );
                     }
                 });
+    }
+
+    @Override
+    public void onItemRight(final int position, View selectedItem) {
+        activity.connections.moveToList(
+                list.get(position).id,
+                ListType.nextListType(listType),
+                activity.credentialFactory,
+                new TTCallback<List<Item>>(){
+
+                    @Override
+                    public void success(List<Item> result) {
+                        onTaskMoved(position,ListType.nextListType(listType));
+                    }
+
+                    @Override
+                    public void failure(Throwable cause) {
+                        instructionsTextView.setText(R.string.trello_error);
+                        Log.e("TAG",cause.toString() );
+                    }
+                });
+    }
+
+    @Override
+    public boolean showRightButton() {
+        return listType == ListType.TODO || listType == ListType.DOING;
+    }
+
+    @Override
+    public boolean showLeftButton() {
+        return listType == ListType.DOING || listType == ListType.DONE;
+    }
+
+    void onTaskMoved(int position, ListType toType) {
+        Item movedTask = list.remove(position);
+        listAdapter.notifyItemRemoved(position);
+
+        activity.addToList(toType, movedTask);
+    }
+
+    void addToList(Item movedTask) {
+        list.add(movedTask);
+        listAdapter.notifyItemInserted(list.size() - 1);
     }
 }
