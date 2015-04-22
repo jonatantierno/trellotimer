@@ -10,18 +10,19 @@ import android.util.Log;
  */
 class TasksDbHelper extends SQLiteOpenHelper {
     private static final String TEXT_TYPE = " TEXT";
+    private static final String INT_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
 
     private static final String SQL_CREATE_ENTRIES =
-            "CREATE TABLE " + TrackEntry.TABLE_NAME + " (" +
-                    TrackEntry._ID + " INTEGER PRIMARY KEY," +
-                    TrackEntry.COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
-                    TrackEntry.COLUMN_NAME_NAME+ TEXT_TYPE + COMMA_SEP +
-                    TrackEntry.COLUMN_NAME_POMODOROS+ TEXT_TYPE + COMMA_SEP +
-                    TrackEntry.COLUMN_NAME_SECONDS_SPENT+ TEXT_TYPE + " )";
+            "CREATE TABLE " + TaskEntry.TABLE_NAME + " (" +
+                    TaskEntry._ID + " INTEGER PRIMARY KEY," +
+                    TaskEntry.COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
+                    TaskEntry.COLUMN_NAME_NAME+ TEXT_TYPE + COMMA_SEP +
+                    TaskEntry.COLUMN_NAME_POMODOROS+ INT_TYPE + COMMA_SEP +
+                    TaskEntry.COLUMN_NAME_TIME_SPENT + INT_TYPE + " )";
 
     private static final String SQL_DELETE_ENTRIES =
-            "DROP TABLE IF EXISTS " + TrackEntry.TABLE_NAME;
+            "DROP TABLE IF EXISTS " + TaskEntry.TABLE_NAME;
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "Tasks.db";

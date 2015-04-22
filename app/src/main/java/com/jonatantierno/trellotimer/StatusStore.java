@@ -51,6 +51,7 @@ public class StatusStore {
         prefs.edit().putString(LIST_NAME + type.name(), list.name).commit();
     }
 
+
     public boolean userFinishedConfig() {
         if (!userConfiguredBoard()){
             return false;
@@ -87,4 +88,5 @@ public class StatusStore {
     public void reset() {
         prefs.edit().clear().commit();
     }
+
 }

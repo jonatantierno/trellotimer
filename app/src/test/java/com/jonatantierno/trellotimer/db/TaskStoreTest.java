@@ -36,4 +36,18 @@ public class TaskStoreTest {
 
         assertEquals(task,retrievedTask);
     }
+
+    @Test
+    public void shouldUpdateAndRecoverTask(){
+        TaskStore store = new TaskStore(RuntimeEnvironment.application);
+
+        store.putTask(new Task(ID,"name",3,7));
+
+        Task updatedTask = new Task(ID,"name",4,70);
+        store.updateTask(updatedTask);
+
+        Task retrievedTask = store.getTask(ID);
+
+        assertEquals(updatedTask,retrievedTask);
+    }
 }

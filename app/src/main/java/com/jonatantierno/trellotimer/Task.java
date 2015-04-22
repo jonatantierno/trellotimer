@@ -1,23 +1,29 @@
 package com.jonatantierno.trellotimer;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * Created by jonatan on 21/04/15.
  */
 public class Task extends Item{
     public final int pomodoros;
-    public final long secondsSpent;
-    public Task(String id, String name, int pomodoros, long secondsSpent) {
+    public final long timeSpent;
+
+    public Task(String id, String name, int pomodoros, long timeSpent) {
         super(id, name);
         this.pomodoros = pomodoros;
-        this.secondsSpent = secondsSpent;
+        this.timeSpent = timeSpent;
     }
 
     public Task(Item item){
         this(item.id,item.name,0,0);
     }
+
+    public Task increaseTaskPomodoros(long pomodoroTime){
+        return new Task(id,name,pomodoros+1, timeSpent +pomodoroTime);
+    }
+    public Task increaseTaskTime(long pomodoroTime) {
+        return new Task(id,name,pomodoros, timeSpent +pomodoroTime);
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -29,11 +35,17 @@ public class Task extends Item{
         return id.equals(task.id) &&
                 name.equals(task.name) &&
                 pomodoros == task.pomodoros &&
-                secondsSpent == task.secondsSpent;
+                timeSpent == task.timeSpent;
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode() + id.hashCode() >>> 3 + pomodoros >>> 2 + secondsSpent >>> 1;
+        return name.hashCode() + id.hashCode() >>> 3 + pomodoros >>> 2 + timeSpent >>> 1;
     }
+
+    @Override
+    public String toString() {
+        return name + ", " + pomodoros + "p, " + timeSpent +"s";
+    }
+
 }

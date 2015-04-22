@@ -22,21 +22,21 @@ public class TaskStore {
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projection = {
-                TrackEntry._ID,
-                TrackEntry.COLUMN_NAME_ID,
-                TrackEntry.COLUMN_NAME_NAME,
-                TrackEntry.COLUMN_NAME_POMODOROS,
-                TrackEntry.COLUMN_NAME_SECONDS_SPENT
+                TaskEntry._ID,
+                TaskEntry.COLUMN_NAME_ID,
+                TaskEntry.COLUMN_NAME_NAME,
+                TaskEntry.COLUMN_NAME_POMODOROS,
+                TaskEntry.COLUMN_NAME_TIME_SPENT
         };
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder =
-                TrackEntry.COLUMN_NAME_ID + " DESC";
+                TaskEntry.COLUMN_NAME_ID + " DESC";
 
         Cursor c = db.query(
-                TrackEntry.TABLE_NAME,  // The table to query
+                TaskEntry.TABLE_NAME,  // The table to query
                 projection,                               // The columns to return
-                TrackEntry.COLUMN_NAME_ID + " LIKE ?",     // The columns for the WHERE clause
+                TaskEntry.COLUMN_NAME_ID + " LIKE ?",     // The columns for the WHERE clause
                 new String[]{taskId},                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
@@ -45,10 +45,10 @@ public class TaskStore {
         c.moveToFirst();
 
         return new Task(
-                c.getString(c.getColumnIndexOrThrow(TrackEntry.COLUMN_NAME_ID)),
-                c.getString(c.getColumnIndexOrThrow(TrackEntry.COLUMN_NAME_NAME)),
-                c.getInt(c.getColumnIndexOrThrow(TrackEntry.COLUMN_NAME_POMODOROS)),
-                c.getLong(c.getColumnIndexOrThrow(TrackEntry.COLUMN_NAME_SECONDS_SPENT))
+                c.getString(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_ID)),
+                c.getString(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_NAME)),
+                c.getInt(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_POMODOROS)),
+                c.getLong(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_TIME_SPENT))
                 );
     }
 
@@ -58,12 +58,30 @@ public class TaskStore {
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put(TrackEntry.COLUMN_NAME_ID, task.id);
-        values.put(TrackEntry.COLUMN_NAME_NAME, task.name);
-        values.put(TrackEntry.COLUMN_NAME_POMODOROS, task.pomodoros);
-        values.put(TrackEntry.COLUMN_NAME_SECONDS_SPENT, task.secondsSpent);
+        values.put(TaskEntry.COLUMN_NAME_ID, task.id);
+        values.put(TaskEntry.COLUMN_NAME_NAME, task.name);
+        values.put(TaskEntry.COLUMN_NAME_POMODOROS, task.pomodoros);
+        values.put(TaskEntry.COLUMN_NAME_TIME_SPENT, task.timeSpent);
 
         // Insert the new row, returning the primary key value of the new row
-        db.insert(TrackEntry.TABLE_NAME,null,values);
+        db.insert(TaskEntry.TABLE_NAME, null, values);
+    }
+
+    public void updateTask(Task task) {
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(TaskEntry.COLUMN_NAME_POMODOROS, task.pomodoros);
+        values.put(TaskEntry.COLUMN_NAME_TIME_SPENT, task.timeSpent);
+
+        // Which row to update, based on the ID
+        String selection = TaskEntry.COLUMN_NAME_ID + " LIKE ?";
+        String[] selectionArgs = {String.valueOf(task.id) };
+
+        // Insert the new row, returning the primary key value of the new row
+        db.update(TaskEntry.TABLE_NAME, values,selection,selectionArgs);
+
     }
 }
