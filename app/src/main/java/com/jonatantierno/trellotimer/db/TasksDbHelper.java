@@ -36,9 +36,14 @@ class TasksDbHelper extends SQLiteOpenHelper {
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Simply discard the data and start over
+        clear(db);
+    }
+
+    void clear(SQLiteDatabase db) {
         db.execSQL(SQL_DELETE_ENTRIES);
         onCreate(db);
     }
+
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }

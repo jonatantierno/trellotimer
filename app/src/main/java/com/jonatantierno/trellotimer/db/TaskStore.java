@@ -42,6 +42,11 @@ public class TaskStore {
                 null,                                     // don't filter by row groups
                 sortOrder                                 // The sort order
         );
+
+        if(c.getCount() <=0){
+            return null;
+        }
+
         c.moveToFirst();
 
         return new Task(
@@ -81,7 +86,12 @@ public class TaskStore {
         String[] selectionArgs = {String.valueOf(task.id) };
 
         // Insert the new row, returning the primary key value of the new row
-        db.update(TaskEntry.TABLE_NAME, values,selection,selectionArgs);
+        db.update(TaskEntry.TABLE_NAME, values, selection, selectionArgs);
 
+    }
+
+    public void clear() {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        mDbHelper.clear(db);
     }
 }

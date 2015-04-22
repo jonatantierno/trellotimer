@@ -1,6 +1,7 @@
 package com.jonatantierno.trellotimer;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.jonatantierno.trellotimer.services.AddCommentSrv;
 import com.jonatantierno.trellotimer.services.GetAllBoardsSrv;
 import com.jonatantierno.trellotimer.services.GetAllListsSrv;
 import com.jonatantierno.trellotimer.services.GetTasksSrv;
@@ -122,6 +123,30 @@ public class TTConnections {
                 assert listId != null;
 
                 srv.moveToList(CredentialFactory.CLIENT_ID, credential.getAccessToken(), cardId, listId, new Callback<Void>() {
+                    @Override
+                    public void success(Void v, Response response2) {
+                        callback.success(null);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        callback.failure(error);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    public void addComment(final String cardId, final String comment, final CredentialFactory credentialFactory, final TTCallback<List<Item>> callback) {
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                Credential credential = getCredential(credentialFactory, callback);
+
+                RestAdapter boardRestAdapter = buildAdapter();
+                AddCommentSrv srv = boardRestAdapter.create(AddCommentSrv.class);
+
+                srv.addComment(CredentialFactory.CLIENT_ID, credential.getAccessToken(), cardId, comment, new Callback<Void>() {
                     @Override
                     public void success(Void v, Response response2) {
                         callback.success(null);

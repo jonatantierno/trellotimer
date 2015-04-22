@@ -38,7 +38,7 @@ public class ConfigActivityTest {
     }
 
     @Test
-    public void whenFaliureThenShowErrorMessage(){
+    public void whenFailureThenShowErrorMessage(){
         activityController.create();
 
         activity.failure(new Exception("Exception"));

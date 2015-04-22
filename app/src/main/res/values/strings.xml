@@ -2,7 +2,7 @@
     <string name="app_name">Trello Timer</string>
 
     <string name="hello_world">Hello world!</string>
-    <string name="action_delete_credentials">Delete Credentials</string>
+    <string name="action_delete_data">Delete data</string>
     <string name="action_configure_lists">Configure lists</string>
     <string name="title_activity_config">Configuration</string>
     <string name="select_board">Select the board than contains your tasks</string>
@@ -21,6 +21,7 @@
     <string name="title_section3">Section 3</string>
     <string name="connect">Connect with Trello</string>
     <string name="connecting">Connecting with Trello...</string>
+    <string name="task_moved_to_done">Task moved to DONE</string>
     <string name="Intro">To start using this application, you need to connect to your Trello Account.</string>
     <string-array
         name="task_info_string">
@@ -30,9 +31,13 @@
     </string-array>
     <string name="title_activity_timer">TimerActivity</string>
     <string name="action_settings">Settings</string>
-    <string name="pomodoros">&#032; pomodoros</string>
-    <string name="start_pomodoro">Start New Pomodoro</string>
+    <string name="pomodoros">\u0020 pomodoros</string>
+    <string name="start_pomodoro">New Pomodoro</string>
+    <string name="start_long_break">Long break</string>
+    <string name="start_short_break">Short break</string>
     <string name="pause">Pause</string>
     <string name="continue_button">Continue</string>
+    <string name="total_spent">\u0020 total spent</string>
+    <string name="done_button">Done</string>
 
 </resources>

@@ -12,19 +12,21 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ActivityController;
 
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -39,6 +41,7 @@ public class TimerActivityTest {
     public static final long TIME_SPENT = 90 *1000;
     public static final int POMODOROS = 7;
     public static final long THIRTY_MINUTES = 30 * 60 * 1000;
+    private static final String COMMENT ="7"+"\\u0020"+" pomodoros, 0h 1m 30s"+"\\u0020"+" total spent";
 
     TimerActivity activity;
     ActivityController<TimerActivity> activityController;
@@ -54,11 +57,13 @@ public class TimerActivityTest {
         activity = activityController.get();
 
         activity.clock = mock(TTClock.class);
+        activity.player = mock(TTSoundPlayer.class);
 
 
         application = (TTApplication) RuntimeEnvironment.application;
 
         application.store = store;
+        application.connections = mock(TTConnections.class);
         application.credentialFactory= credentialFactory;
         application.taskStore = taskStore;
 
@@ -76,9 +81,13 @@ public class TimerActivityTest {
     public void shouldShowSelectedTask(){
         verify(taskStore).getTask(CARD_ID);
 
-        assertEquals(CARD_NAME, activity.taskNameTextView.getText().toString());
-        assertEquals(POMODOROS + activity.getString(R.string.pomodoros), activity.pomodorosTextView.getText().toString());
-        assertEquals("0h 1m 30s", activity.secondsSpentTextView.getText().toString());
+        checkTaskDataShown(currentTask);
+    }
+
+    private void checkTaskDataShown(Task task) {
+        assertEquals(task.name, activity.taskNameTextView.getText().toString());
+        assertEquals(task.pomodoros + activity.getString(R.string.pomodoros), activity.pomodorosTextView.getText().toString());
+        assertEquals(TimerActivity.format(task.timeSpent), activity.timeSpentTextView.getText().toString());
     }
 
     @Test
@@ -90,23 +99,48 @@ public class TimerActivityTest {
     }
     @Test
     public void whenStartTimerShouldShowControls(){
+        activity.doneButton.setVisibility(View.VISIBLE);
+
         activity.pomodoroButton.performClick();
 
-        verify(activity.clock).start(eq(TimerActivity.THIRTY_MINUTES),anyLong());
+        verify(activity.clock).start(eq(TimerActivity.POMODORO_DURATION), anyLong());
 
         assertEquals(View.VISIBLE, activity.controlClockLayout.getVisibility());
         assertEquals(View.GONE, activity.startClockLayout.getVisibility());
-    }
+        assertEquals(View.GONE, activity.doneButton.getVisibility());
 
+        assertEquals("30:00", activity.timeTextView.getText().toString());
+
+
+    }
+    @Test
+    public void whenResumeTaskThouldHideDoneButton(){
+        activityController.resume().pause().resume();
+
+        assertEquals(View.GONE, activity.doneButton.getVisibility());
+    }
 
     @Test
     public void whenPauseButtonShouldPauseClockAndStoreTaskData(){
         activity.pauseButton.performClick();
 
+        checkPause();
+    }
+
+    @Test
+    public void whenPauseShouldPauseClockAndStoreTaskData(){
+        activityController.pause();
+
+        checkPause();
+    }
+
+    private void checkPause() {
         verify(activity.clock).pause(anyLong());
         assertEquals(activity.getString(R.string.continue_button), activity.pauseButton.getText().toString());
 
-        verify(taskStore).updateTask(currentTask.increaseTaskTime(THIRTY_MINUTES));
+        final Task task = currentTask.increaseTaskTime(THIRTY_MINUTES);
+        verify(taskStore).updateTask(task);
+        checkTaskDataShown(task);
     }
 
     @Test
@@ -121,24 +155,40 @@ public class TimerActivityTest {
     }
 
 
-    @Test
-    public void whenPauseShouldPauseClockAndStoreTaskData(){
-        activityController.pause();
-
-        verify(activity.clock).pause(anyLong());
-        verify(taskStore).updateTask(currentTask.increaseTaskTime(THIRTY_MINUTES));
-    }
 
     @Test
-    public void whenTimeUpHideControlsShowStartsStoreTaskData(){
+    public void whenTimeUpHideControlsShowStartsStoreTaskDataPlaySound(){
         activity.pomodoroButton.performClick();
 
         activity.timeUp();
 
         assertEquals(View.VISIBLE, activity.startClockLayout.getVisibility());
+        assertEquals(View.VISIBLE, activity.doneButton.getVisibility());
         assertEquals(View.GONE, activity.controlClockLayout.getVisibility());
 
-        verify(taskStore).updateTask(currentTask.increaseTaskPomodoros(THIRTY_MINUTES));
+        final Task task = currentTask.increaseTaskPomodoros(THIRTY_MINUTES);
+        verify(taskStore).updateTask(task);
+
+        checkTaskDataShown(task);
+
+        verify(activity.player).play(activity);
+    }
+
+    @Test
+    public void whenTaskDoneThenResetClockAndMoveTask(){
+        activity.doneButton.performClick();
+
+        verify(application.connections).addComment(eq(CARD_ID), eq(COMMENT), eq(credentialFactory), any(TTCallback.class));
+
+        assertEquals(View.GONE, activity.doneButton.getVisibility());
+
+
+        Intent nextActivity = Shadows.shadowOf(activity).getNextStartedActivity();
+
+        assertNotNull(nextActivity);
+        assertEquals(CARD_ID, nextActivity.getStringExtra(TasksActivity.EXTRA_CARD_ID_TO_FINISH));
+        assertEquals(TasksActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
+        assertTrue(activity.isFinishing());
     }
 
     @Test
@@ -146,5 +196,4 @@ public class TimerActivityTest {
         assertEquals("17h 1m 30s", TimerActivity.format((17 * 60 * 60 + 1*60 +30)*1000));
 
     }
-
 }

@@ -1,8 +1,5 @@
 package com.jonatantierno.trellotimer;
 
-import java.util.List;
-import java.util.Locale;
-
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -12,15 +9,19 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import java.util.List;
+
 
 public class TasksActivity extends ActionBarActivity implements ActionBar.TabListener {
 
     public static final String EXTRA_CARD_ID = "EXTRA_CARD_ID";
+    public static final String EXTRA_CARD_ID_TO_FINISH = "EXTRA_CARD_TO_FINISH";
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -98,6 +99,44 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
         connections = ((TTApplication) getApplication()).connections;
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        setIntent(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        final String cardToFinish = getIntent().getStringExtra(EXTRA_CARD_ID_TO_FINISH);
+        if (cardToFinish != null){
+            mViewPager.setCurrentItem(ListType.DONE.ordinal(),false);
+            
+            connections.moveToList(
+                    cardToFinish,
+                    ListType.DONE,
+                    credentialFactory,
+                    new TTCallback<List<Item>>() {
+
+                        @Override
+                        public void success(List<Item> result) {
+                            Task task = ((TTApplication)getApplication()).taskStore.getTask(cardToFinish);
+                            int position = fragments[ListType.DOING.ordinal()].list.indexOf(task);
+
+                            onTaskMoved(position,ListType.DOING,ListType.DONE);
+                            fragments[ListType.DONE.ordinal()].infoTextView.setText(R.string.task_moved_to_done);
+                        }
+
+                        @Override
+                        public void failure(Throwable cause) {
+                            Log.e("TAG", cause.toString());
+                            fragments[ListType.DONE.ordinal()].infoTextView.setText(R.string.trello_error);
+                        }
+                    });
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -114,15 +153,16 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_delete_credentials) {
+        if (id == R.id.action_delete_data) {
             credentialFactory.deleteCredentials();
             store.reset();
+            ((TTApplication)getApplication()).taskStore.clear();
             startActivity(new Intent(this, MainActivity.class));
             finish();
             return true;
         }
         if (id == R.id.action_configure_lists) {
-            startActivity(new Intent(this,SelectBoardActivity.class));
+            startActivity(new Intent(this, SelectBoardActivity.class));
             finish();
             return true;
         }
@@ -158,6 +198,14 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
 
     public void stopLoading() {
         progressBar.setVisibility(View.GONE);
+    }
+
+    void onTaskMoved(int position, ListType fromType, ListType toType) {
+        stopLoading();
+        Item movedTask = fragments[fromType.ordinal()].list.remove(position);
+        fragments[fromType.ordinal()].listAdapter.notifyItemRemoved(position);
+
+        addToList(toType, movedTask);
     }
 
     /**

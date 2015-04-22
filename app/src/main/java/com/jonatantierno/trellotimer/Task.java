@@ -45,7 +45,7 @@ public class Task extends Item{
 
     @Override
     public String toString() {
-        return name + ", " + pomodoros + "p, " + timeSpent +"s";
+        return name + ", " + pomodoros + "p, " + timeSpent +"ms";
     }
 
 }

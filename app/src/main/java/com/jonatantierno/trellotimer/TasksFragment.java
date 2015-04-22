@@ -131,7 +131,7 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
 
                     @Override
                     public void success(List<Item> result) {
-                        onTaskMoved(position, ListType.prevListType(listType));
+                        activity.onTaskMoved(position, listType, ListType.prevListType(listType));
                         activity.stopLoading();
                     }
 
@@ -160,7 +160,7 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
 
                     @Override
                     public void success(List<Item> result) {
-                        onTaskMoved(position, ListType.nextListType(listType));
+                        activity.onTaskMoved(position, listType, ListType.nextListType(listType));
 
                     }
 
@@ -181,14 +181,6 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
     @Override
     public boolean showLeftButton() {
         return listType == ListType.DOING || listType == ListType.DONE;
-    }
-
-    void onTaskMoved(int position, ListType toType) {
-        activity.stopLoading();
-        Item movedTask = list.remove(position);
-        listAdapter.notifyItemRemoved(position);
-
-        activity.addToList(toType, movedTask);
     }
 
     void addToList(Item movedTask) {

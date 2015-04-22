@@ -88,4 +88,37 @@ public class TTClockTest {
         verify(activity).showTime("00:04");
 
     }
+
+    @Test
+    public void shouldYieldElapsedTimeSinceLastPause(){
+        clockUnderTest.start(TEN_SECONDS, TIME_ZERO);
+
+        clockUnderTest.tick(TIME_TWO);
+
+        clockUnderTest.tick(TIME_FOUR);
+
+        assertEquals(4 * 1000, clockUnderTest.getElapsedTime());
+
+        clockUnderTest.pause(TIME_SIX);
+        clockUnderTest.unpause(TIME_EIGHT);
+
+        clockUnderTest.tick(TIME_ELEVEN);
+
+        assertEquals(3 * 1000, clockUnderTest.getElapsedTime());
+
+    }
+
+    @Test
+    public void beforeStartShouldBePaused(){
+        assertTrue(clockUnderTest.isPaused());
+    }
+
+
+    @Test
+    public void afterTimeUpShouldBePaused(){
+        clockUnderTest.start(TEN_SECONDS, TIME_ZERO);
+        clockUnderTest.tick(TIME_ELEVEN);
+
+        assertTrue(clockUnderTest.isPaused());
+    }
 }

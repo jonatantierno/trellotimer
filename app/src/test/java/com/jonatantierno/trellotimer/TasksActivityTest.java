@@ -36,6 +36,8 @@ public class TasksActivityTest {
 
     public static final String CARD_NAME = "card_name";
     public static final String CARD_ID = "card_id";
+    public static final String CARD_ID_2 = "card_id_2";
+
     TasksActivity activity;
     ActivityController<TasksActivity> activityController;
     TTConnections connections = mock(TTConnections.class);
@@ -57,14 +59,13 @@ public class TasksActivityTest {
         application.store = store;
         application.taskStore = taskStore;
 
-
         activity.testing = true;
-        activityController.create();
-
     }
 
     @Test
     public void whenTodoTaskPressedThenMoveToDoing(){
+        activityController.create();
+
         TasksFragment todoFragment = getFragment(ListType.TODO);
         TasksFragment doingFragment = getFragment(ListType.DOING);
 
@@ -77,7 +78,7 @@ public class TasksActivityTest {
 
         verify(connections).moveToList(eq(CARD_ID), eq(ListType.DOING), eq(credentialFactory), any(TTCallback.class));
 
-        todoFragment.onTaskMoved(0,ListType.DOING);
+        todoFragment.activity.onTaskMoved(0, ListType.TODO, ListType.DOING);
         assertFalse(todoFragment.list.contains(card));
         assertTrue(doingFragment.list.contains(card));
 
@@ -85,6 +86,8 @@ public class TasksActivityTest {
 
     @Test
     public void whenPressedThenNothingElseHappensTillMovementFinished(){
+        activityController.create();
+
         TasksFragment todoFragment = getFragment(ListType.TODO);
         TasksFragment doingFragment = getFragment(ListType.DOING);
 
@@ -104,7 +107,7 @@ public class TasksActivityTest {
         verify(connections,times(1)).moveToList(eq(CARD_ID), eq(ListType.DOING), eq(credentialFactory), any(TTCallback.class));
 
         // Untill onTaskMoved nothing else happens.
-        todoFragment.onTaskMoved(0, ListType.DOING);
+        todoFragment.activity.onTaskMoved(0, ListType.TODO, ListType.DOING);
 
         assertEquals(View.GONE, activity.progressBar.getVisibility());
 
@@ -113,6 +116,8 @@ public class TasksActivityTest {
 
     @Test
     public void whenPressDoingThenGoToTimerScreen(){
+        activityController.create();
+
         TasksFragment doingFragment = getFragment(ListType.DOING);
 
         final View selectedView = mock(View.class);
@@ -122,19 +127,20 @@ public class TasksActivityTest {
         doingFragment.list.add(card);
         doingFragment.onItemSelected(0, selectedView);
 
-        verify(taskStore).putTask(new Task(CARD_ID,CARD_NAME,0,0));
+        verify(taskStore).putTask(new Task(CARD_ID, CARD_NAME, 0, 0));
 
 
         Intent nextActivity = Shadows.shadowOf(activity).getNextStartedActivity();
 
         assertNotNull(nextActivity);
-        assertEquals(CARD_ID,nextActivity.getStringExtra(TasksActivity.EXTRA_CARD_ID));
+        assertEquals(CARD_ID, nextActivity.getStringExtra(TasksActivity.EXTRA_CARD_ID));
         assertEquals(TimerActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
         assertFalse(activity.isFinishing());
     }
 
 
     private TasksFragment getFragment(ListType type) {
+
         TasksFragment fragment = activity.fragments[type.ordinal()];
         fragment.listType = type;
         fragment.activity = activity;
@@ -144,6 +150,8 @@ public class TasksActivityTest {
 
     @Test
     public void whenConfigureListThenGoToSelectBoard(){
+        activityController.create();
+
         MenuItem deleteCredentialsItem = mock(MenuItem.class);
         when(deleteCredentialsItem.getItemId()).thenReturn(R.id.action_configure_lists);
 
@@ -154,15 +162,30 @@ public class TasksActivityTest {
 
     @Test
     public void whenDeleteCredentialsThenGoToFirstScreen(){
+        activityController.create();
+
         MenuItem deleteCredentialsItem = mock(MenuItem.class);
-        when(deleteCredentialsItem.getItemId()).thenReturn(R.id.action_delete_credentials);
+        when(deleteCredentialsItem.getItemId()).thenReturn(R.id.action_delete_data);
 
         activity.onOptionsItemSelected(deleteCredentialsItem);
 
+        verify(taskStore).clear();
         verify(credentialFactory).deleteCredentials();
         verify(store).reset();
         MainActivityTest.checkGoneTo(activity,MainActivity.class);
 
+    }
+
+    @Test
+    public void whenReceivedCardToFinishThenMoveItAndGoToDone(){
+        final Intent intent = new Intent().putExtra(TasksActivity.EXTRA_CARD_ID_TO_FINISH, CARD_ID_2);
+
+        activityController.withIntent(intent).create().resume();
+
+        assertEquals(View.VISIBLE, activity.progressBar.getVisibility());
+        verify(connections, times(1)).moveToList(eq(CARD_ID_2), eq(ListType.DONE), eq(credentialFactory), any(TTCallback.class));
+
+        assertEquals(ListType.DONE.ordinal(),activity.mViewPager.getCurrentItem());
     }
 
 

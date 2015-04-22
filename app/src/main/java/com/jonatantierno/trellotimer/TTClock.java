@@ -12,9 +12,10 @@ public class TTClock {
     long timeout = 0;
     long initialTime = 0;
     long timeLeft = 0;
+    long startOfLastPeriod = 0;
 
     long lastTick;
-    private boolean paused = false;
+    private boolean paused = true;
 
     TTClock(TimerActivity activity, Ticker ticker) {
         this.activity = activity;
@@ -34,7 +35,7 @@ public class TTClock {
     private void prepareStart(long timeout, long initialTIme) {
         this.paused = false;
         this.timeout = this.timeLeft = timeout;
-        this.initialTime = this.lastTick = initialTIme;
+        this.initialTime = this.lastTick = this.startOfLastPeriod = initialTIme;
     }
 
     public void tick(long currentTime) {
@@ -65,6 +66,7 @@ public class TTClock {
 
         if (timeLeft <= 0) {
             activity.timeUp();
+            paused = true;
         } else {
             activity.showTime(TTClock.format(timeLeft));
         }
@@ -91,12 +93,12 @@ public class TTClock {
     public void unpause(long currentTime) {
         paused = false;
 
-        lastTick = currentTime;
+        lastTick = startOfLastPeriod = currentTime;
         ticker.tickInAsecond();
     }
 
     public long getElapsedTime() {
-        return timeout-timeLeft;
+        return lastTick - startOfLastPeriod;
     }
 
     public boolean isPaused() {

@@ -1,18 +1,18 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.jonatantierno.trellotimer.TimerActivity">
+    android:orientation="vertical"
+    tools:context="com.jonatantierno.trellotimer.TimerActivity"
+    android:gravity="center_horizontal|top">
 
     <TextView android:text="@string/hello_world"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_width="wrap_content"
         android:id="@+id/taskNameTextView"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_height="wrap_content" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -20,8 +20,6 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="-"
         android:id="@+id/pomodorosTextView"
-        android:layout_below="@+id/taskNameTextView"
-        android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/activity_vertical_margin" />
 
     <TextView
@@ -30,8 +28,6 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="-"
         android:id="@+id/secondsSpentTextView"
-        android:layout_below="@+id/pomodorosTextView"
-        android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/activity_vertical_margin" />
 
     <TextView
@@ -39,26 +35,42 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="--:--"
+        android:padding="@dimen/activity_padding_clock"
         android:id="@+id/timeTextView"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:textSize="60sp" />
+        android:textSize="75sp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/done_button"
+        android:id="@+id/doneButton"
+        android:visibility="gone" />
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/timeTextView"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/startClockLayout">
+        android:id="@+id/startClockLayout"
+        android:gravity="center_horizontal">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/start_pomodoro"
-            android:id="@+id/pomodoroButton"
-            android:layout_below="@+id/timeTextView"
-            android:layout_centerHorizontal="true" />
+            android:id="@+id/pomodoroButton"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/start_long_break"
+            android:id="@+id/longBreakButton"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/start_short_break"
+            android:id="@+id/shortBreakButton"/>
 
     </LinearLayout>
 
@@ -67,10 +79,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/controlClockLayout"
-        android:layout_below="@+id/startClockLayout"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:gravity="center_horizontal">
 
         <Button
             android:layout_width="wrap_content"
@@ -79,4 +89,4 @@
             android:id="@+id/pauseButton" />
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>
