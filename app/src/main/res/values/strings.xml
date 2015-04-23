@@ -42,5 +42,6 @@
     <string name="done_button">Done</string>
     <string name="stop_button">Stop</string>
     <string name="break_text">Taking a break...</string>
+    <string name="must_be_doing">To start a pomodoro with a task, first move it to the DOING list.</string>
 
 </resources>

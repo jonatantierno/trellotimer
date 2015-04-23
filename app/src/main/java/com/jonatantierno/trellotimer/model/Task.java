@@ -25,12 +25,13 @@ public class Task extends Item {
                 .append(' ')
                 .append('(')
                 .append(pomodoros)
+                .append('p')
                 .append(')')
                 .toString();
     }
 
     public Task(Item item){
-        this(item.id,item.name,0,0);
+        this(item.id, item.name, 0, 0);
     }
 
     public Task increaseTaskPomodoros(long pomodoroTime){

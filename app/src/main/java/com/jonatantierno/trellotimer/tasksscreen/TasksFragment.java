@@ -131,8 +131,12 @@ public class TasksFragment extends Fragment implements TTCallback<List<Item>>,On
     @Override
     public void onItemSelected(final int position, View selectedItem) {
         if (listType == ListType.DOING){
+            activity.selectedCardIndex = position;
+
             saveCurrentTask(position);
             goToTimerActivity(position);
+        } else {
+            infoTextView.setText(R.string.must_be_doing);
         }
     }
 

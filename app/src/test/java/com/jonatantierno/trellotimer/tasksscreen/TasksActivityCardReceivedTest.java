@@ -24,6 +24,7 @@ import org.robolectric.util.ActivityController;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -74,6 +75,8 @@ public class TasksActivityCardReceivedTest {
         assertEquals(View.VISIBLE, activity.progressBar.getVisibility());
         verify(connections, times(1)).moveToList(eq(CARD_ID), eq(ListType.DONE), eq(credentialFactory), any(TTCallback.class));
 
-        assertEquals(ListType.DONE.ordinal(),activity.mViewPager.getCurrentItem());
+        assertEquals(ListType.DONE.ordinal(), activity.mViewPager.getCurrentItem());
+
+        assertNull(activity.getIntent().getStringExtra(TasksActivity.EXTRA_CARD_ID_TO_FINISH));
     }
 }

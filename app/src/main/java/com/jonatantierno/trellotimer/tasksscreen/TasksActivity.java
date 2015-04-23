@@ -55,6 +55,8 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
     TTConnections connections;
     ProgressBar progressBar;
 
+    int selectedCardIndex = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,10 +123,30 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
     protected void onResume() {
         super.onResume();
 
+        refreshSelectedTask();
+
         final String cardToFinish = getIntent().getStringExtra(EXTRA_CARD_ID_TO_FINISH);
         if (cardToFinish != null){
-            mViewPager.setCurrentItem(ListType.DONE.ordinal(),false);
+            mViewPager.setCurrentItem(ListType.DONE.ordinal(), false);
             finishReceivedCard(cardToFinish);
+        }
+
+        getIntent().removeExtra(EXTRA_CARD_ID_TO_FINISH);
+    }
+
+    private void refreshSelectedTask() {
+        final List<Task> listDoing = fragments[ListType.DOING.ordinal()].list;
+
+        if (selectedCardIndex >= 0 && selectedCardIndex < listDoing.size()) {
+
+            Task taskToRefresh = listDoing.get(selectedCardIndex);
+
+            Task refreshedTask = taskStore.getTask(taskToRefresh.id);
+
+            assert (refreshedTask != null);
+
+            listDoing.set(selectedCardIndex, refreshedTask);
+            fragments[ListType.DOING.ordinal()].listAdapter.notifyItemChanged(selectedCardIndex);
         }
     }
 
@@ -138,10 +160,10 @@ public class TasksActivity extends ActionBarActivity implements ActionBar.TabLis
 
                     @Override
                     public void success(List<Item> result) {
-                        Task task = taskStore.getTask(cardToFinish);
-                        int position = fragments[ListType.DOING.ordinal()].list.indexOf(task);
+                        Task taskToMove = fragments[ListType.DOING.ordinal()].list.get(selectedCardIndex);
+                        assert cardToFinish == taskToMove.id;
 
-                        onTaskMoved(position,ListType.DOING,ListType.DONE);
+                        onTaskMoved(selectedCardIndex, ListType.DOING, ListType.DONE);
                         fragments[ListType.DONE.ordinal()].infoTextView.setText(R.string.task_moved_to_done);
                     }
 

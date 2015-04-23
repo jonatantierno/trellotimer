@@ -18,7 +18,7 @@ public class Item {
     Item(String id, String name, String info){
         this.id = id;
         this.name = name;
-        this.info = null;
+        this.info = info;
 
         this.selected = false;
     }

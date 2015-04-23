@@ -50,7 +50,7 @@ public class TasksActivityTest {
     public static final String CARD_NAME = "card_name";
     public static final String CARD_ID = "card_id";
 
-    TasksActivity activity;
+    TasksActivity activityUnderTest;
     ActivityController<TasksActivity> activityController;
     TTConnections connections = mock(TTConnections.class);
     StatusStore store = mock(StatusStore.class);
@@ -66,7 +66,7 @@ public class TasksActivityTest {
     @Before
     public void setup(){
         activityController = Robolectric.buildActivity(TasksActivity.class);
-        activity = activityController.get();
+        activityUnderTest = activityController.get();
 
         application = (TTApplication) RuntimeEnvironment.application;
 
@@ -78,7 +78,7 @@ public class TasksActivityTest {
         task = new Task(CARD_ID, CARD_NAME,7,90*1000);
         selectedView = mock(View.class);
 
-        activity.testing = true;
+        activityUnderTest.testing = true;
 
         activityController.create();
 
@@ -107,38 +107,41 @@ public class TasksActivityTest {
         doingFragment.onItemLeft(0, selectedView);
         doingFragment.onItemRight(0, selectedView);
 
-        assertEquals(View.VISIBLE, activity.progressBar.getVisibility());
+        assertEquals(View.VISIBLE, activityUnderTest.progressBar.getVisibility());
         verify(connections, times(1)).moveToList(eq(CARD_ID), eq(ListType.DOING), eq(credentialFactory), any(TTCallback.class));
 
         // Untill onTaskMoved nothing else happens.
         todoFragment.activity.onTaskMoved(0, ListType.TODO, ListType.DOING);
 
-        assertEquals(View.GONE, activity.progressBar.getVisibility());
+        assertEquals(View.GONE, activityUnderTest.progressBar.getVisibility());
 
 
     }
 
     @Test
     public void whenPressDoingThenGoToTimerScreen(){
+        activityUnderTest.selectedCardIndex = -1; //To check that value changes
+
         doingFragment.list.add(task);
         doingFragment.onItemSelected(0, selectedView);
 
         verify(taskStore).putTask(new Task(CARD_ID, CARD_NAME, 0, 0));
 
+        assertEquals(0, activityUnderTest.selectedCardIndex);
 
-        Intent nextActivity = Shadows.shadowOf(activity).getNextStartedActivity();
+        Intent nextActivity = Shadows.shadowOf(activityUnderTest).getNextStartedActivity();
 
         assertNotNull(nextActivity);
         assertEquals(CARD_ID, nextActivity.getStringExtra(TasksActivity.EXTRA_CARD_ID));
         assertEquals(TimerActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
-        assertFalse(activity.isFinishing());
+        assertFalse(activityUnderTest.isFinishing());
     }
 
 
     private TasksFragment getFragment(ListType type) {
-        TasksFragment fragment = activity.fragments[type.ordinal()];
+        TasksFragment fragment = activityUnderTest.fragments[type.ordinal()];
         fragment.listType = type;
-        fragment.activity = activity;
+        fragment.activity = activityUnderTest;
         return fragment;
     }
 
@@ -148,9 +151,9 @@ public class TasksActivityTest {
         MenuItem deleteCredentialsItem = mock(MenuItem.class);
         when(deleteCredentialsItem.getItemId()).thenReturn(R.id.action_configure_lists);
 
-        activity.onOptionsItemSelected(deleteCredentialsItem);
+        activityUnderTest.onOptionsItemSelected(deleteCredentialsItem);
 
-        MainActivityTest.checkGoneTo(activity, SelectBoardActivity.class);
+        MainActivityTest.checkGoneTo(activityUnderTest, SelectBoardActivity.class);
     }
 
     @Test
@@ -158,12 +161,12 @@ public class TasksActivityTest {
         MenuItem deleteCredentialsItem = mock(MenuItem.class);
         when(deleteCredentialsItem.getItemId()).thenReturn(R.id.action_delete_data);
 
-        activity.onOptionsItemSelected(deleteCredentialsItem);
+        activityUnderTest.onOptionsItemSelected(deleteCredentialsItem);
 
         verify(taskStore).clear();
         verify(credentialFactory).deleteCredentials();
         verify(store).reset();
-        MainActivityTest.checkGoneTo(activity,MainActivity.class);
+        MainActivityTest.checkGoneTo(activityUnderTest,MainActivity.class);
 
     }
 }

@@ -291,6 +291,25 @@ public class TimerActivityTest {
     }
 
     @Test
+    public void whenBackThenDoNotMoveTask(){
+        activityUnderTest.pomodoroButton.performClick();
+
+        activityUnderTest.doneButton.performClick();
+
+        verify(application.connections).addComment(eq(CARD_ID), eq(COMMENT), eq(credentialFactory), any(TTCallback.class));
+
+        assertEquals(View.GONE, activityUnderTest.doneButton.getVisibility());
+
+
+        Intent nextActivity = Shadows.shadowOf(activityUnderTest).getNextStartedActivity();
+
+        assertNotNull(nextActivity);
+        assertEquals(CARD_ID, nextActivity.getStringExtra(TasksActivity.EXTRA_CARD_ID_TO_FINISH));
+        assertEquals(TasksActivity.class.getCanonicalName(), nextActivity.getComponent().getClassName());
+        assertTrue(activityUnderTest.isFinishing());
+    }
+
+    @Test
     public void shouldFormat(){
         assertEquals("17h 1m 30s", Formatter.formatTimeSpent((17 * 60 * 60 + 1 * 60 + 30) * 1000));
 
