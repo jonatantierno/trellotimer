@@ -1,16 +1,10 @@
 package com.jonatantierno.trellotimer.db;
 
-import android.app.Activity;
-
 import com.jonatantierno.trellotimer.BuildConfig;
-import com.jonatantierno.trellotimer.MainActivity;
-import com.jonatantierno.trellotimer.TTApplication;
-import com.jonatantierno.trellotimer.Task;
-import com.jonatantierno.trellotimer.TimerActivity;
+import com.jonatantierno.trellotimer.model.Task;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;

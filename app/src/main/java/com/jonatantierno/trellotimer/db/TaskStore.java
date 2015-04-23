@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jonatantierno.trellotimer.Task;
+import com.jonatantierno.trellotimer.model.Task;
 
 /**
  * This class gives access to the stored information about the tasks.

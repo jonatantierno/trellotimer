@@ -4,6 +4,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_delete_data">Delete data</string>
     <string name="action_configure_lists">Configure lists</string>
+    <string name="action_debug_times">Short durations (Debug)</string>
     <string name="title_activity_config">Configuration</string>
     <string name="select_board">Select the board than contains your tasks</string>
     <string name="select_lists">Select three lists that contain your tasks:</string>
@@ -39,5 +40,7 @@
     <string name="continue_button">Continue</string>
     <string name="total_spent">\u0020 total spent</string>
     <string name="done_button">Done</string>
+    <string name="stop_button">Stop</string>
+    <string name="break_text">Taking a break...</string>
 
 </resources>

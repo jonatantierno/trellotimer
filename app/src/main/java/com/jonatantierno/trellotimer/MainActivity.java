@@ -7,11 +7,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.jonatantierno.trellotimer.configscreens.SelectBoardActivity;
+import com.jonatantierno.trellotimer.model.Item;
+import com.jonatantierno.trellotimer.tasksscreen.TasksActivity;
+import com.jonatantierno.trellotimer.trellorequests.TTCallback;
+import com.jonatantierno.trellotimer.trellorequests.TTConnections;
+
 import java.util.List;
 
+/**
+ * This class performs the connection to the trello platform, allowing the user to enter her
+ * user and password.
+ */
 public class MainActivity extends ActionBarActivity {
-    public static final String BASE_TRELLO_URL = "https://api.trello.com";
-
     CredentialFactory credentialFactory;
     StatusStore store;
     TTConnections connections;
@@ -82,7 +90,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     void onLogInSuccess() {
-        store.checkLoggedIn();
+        store.saveLoggedIn();
         goTo(SelectBoardActivity.class);
     }
 

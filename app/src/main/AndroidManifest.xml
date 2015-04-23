@@ -21,23 +21,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SelectBoardActivity"
+            android:name=".configscreens.SelectBoardActivity"
             android:label="@string/title_activity_config"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".SelectListsActivity"
+            android:name=".configscreens.SelectListsActivity"
             android:label="@string/title_activity_config"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".TasksActivity"
+            android:name=".tasksscreen.TasksActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleInstance"
             android:label="@string/title_activity_tasks" >
         </activity>
         <activity
-            android:name=".TimerActivity"
+            android:name=".timerscreen.TimerActivity"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_timer" >
         </activity>

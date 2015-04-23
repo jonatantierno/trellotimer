@@ -5,7 +5,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-    tools:context="com.jonatantierno.trellotimer.TimerActivity"
+    tools:context="com.jonatantierno.trellotimer.timerscreen.TimerActivity"
     android:gravity="center_horizontal|top">
 
     <TextView android:text="@string/hello_world"
@@ -44,6 +44,7 @@
         android:layout_height="wrap_content"
         android:text="@string/done_button"
         android:id="@+id/doneButton"
+        android:onClick="onClickDone"
         android:visibility="gone" />
 
     <LinearLayout
@@ -58,18 +59,21 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/start_pomodoro"
+            android:onClick="onClickStartPomodoro"
             android:id="@+id/pomodoroButton"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/start_long_break"
+            android:onClick="onClickStartLongBreak"
             android:id="@+id/longBreakButton"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/start_short_break"
+            android:onClick="onClickStartShortBreak"
             android:id="@+id/shortBreakButton"/>
 
     </LinearLayout>
@@ -86,7 +90,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/pause"
+            android:onClick="onClickPause"
             android:id="@+id/pauseButton" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/stop_button"
+            android:onClick="onClickStop"
+            android:id="@+id/stopButton" />
     </LinearLayout>
 
 </LinearLayout>

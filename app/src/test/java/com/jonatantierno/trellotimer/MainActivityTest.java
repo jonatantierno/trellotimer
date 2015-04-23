@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.view.View;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.jonatantierno.trellotimer.configscreens.SelectBoardActivity;
+import com.jonatantierno.trellotimer.tasksscreen.TasksActivity;
+import com.jonatantierno.trellotimer.trellorequests.TTConnections;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,7 +97,7 @@ public class MainActivityTest {
         // Success after Logging in
         activity.onLogInSuccess();
 
-        verify(store).checkLoggedIn();
+        verify(store).saveLoggedIn();
         checkGoneTo(activity, SelectBoardActivity.class);
     }
 

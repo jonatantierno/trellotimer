@@ -10,27 +10,46 @@
         android:layout_height="wrap_content"
         android:text="&lt;"
         android:id="@+id/moveLeftButton"
-        android:layout_alignTop="@+id/boardName"
-        android:layout_alignBottom="@+id/boardName"
+        android:layout_alignTop="@+id/itemLayout"
+        android:layout_alignBottom="@+id/itemLayout"
         android:visibility="visible" />
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="100"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="-"
-        android:id="@+id/boardName"
-        android:padding="@dimen/activity_vertical_margin"
+        android:id="@+id/itemLayout"
         android:layout_toRightOf="@+id/moveLeftButton"
-        android:layout_toLeftOf="@+id/moveRightButton" />
+        android:layout_toLeftOf="@+id/moveRightButton"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="100"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Get something from bla bla en un lugar de la mancha"
+            android:id="@+id/itemName"
+            android:padding="@dimen/activity_vertical_margin"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="100"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="9 pomodoros, 1h 34m 4s total spent"
+            android:id="@+id/taskInfo"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_vertical_margin"
+            android:paddingRight="@dimen/activity_vertical_margin"
+            android:visibility="gone"
+            android:paddingTop="0dp"/>
+    </LinearLayout>
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/boardName"
-        android:layout_alignBottom="@id/boardName"
+        android:layout_alignTop="@id/itemLayout"
+        android:layout_alignBottom="@id/itemLayout"
         android:layout_alignParentRight="true"
         android:text="&gt;"
         android:id="@+id/moveRightButton"

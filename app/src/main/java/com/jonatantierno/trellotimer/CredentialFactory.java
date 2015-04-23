@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 
 /**
+ * Class that obtains the Trello OAuth credentials.
  * Created by jonatan on 14/04/15.
  */
 public class CredentialFactory {

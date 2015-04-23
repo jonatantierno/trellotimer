@@ -1,7 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.jonatantierno.trellotimer.TimerActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+    tools:context="com.jonatantierno.trellotimer.tasksscreen.TasksActivity">
+    <item android:id="@+id/action_delete_data" android:title="@string/action_delete_data"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_configure_lists" android:title="@string/action_configure_lists"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_debug_times" android:title="@string/action_debug_times"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>
